@@ -15,9 +15,16 @@ def build_directory():
         "Y'alls"
     )
 
+    satoshis_place = Peer(
+        '02dd4cef0192611bc34cd1c3a0a7eb0f381e7229aa3309ae961a7fc0076b4d2bb6',
+        '35.198.136.5:9735',
+        "Satoshi's Place"
+    )
+
     peers = [
         htlc_dot_me,
-        yalls
+        yalls,
+        satoshis_place
     ]
 
     def peer_factory():
