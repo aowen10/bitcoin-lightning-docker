@@ -6,6 +6,8 @@ from flask import Flask, redirect
 from flask_admin import Admin
 
 from app.bitcoind_client.admin.blockchain_view import BlockchainView
+from app.bitcoind_client.admin.blocks_model_view import BlocksModelView
+from app.bitcoind_client.models.blocks import Blocks
 from app.lnd_client.admin.channels_model_view import ChannelsModelView
 from app.lnd_client.admin.dashboard_view import LightningDashboardView
 from app.lnd_client.admin.invoices_model_view import InvoicesModelView
@@ -43,6 +45,10 @@ def create_app():
     admin.add_view(BlockchainView(name='Blockchain',
                                   endpoint='blockchain',
                                   category='Bitcoin'))
+
+    admin.add_view(BlocksModelView(Blocks,
+                                   name='Blocks',
+                                   category='Bitcoin'))
 
     admin.add_view(LightningDashboardView(name='Dashboard',
                                           endpoint='lightning',
