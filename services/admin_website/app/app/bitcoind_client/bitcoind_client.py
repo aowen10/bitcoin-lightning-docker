@@ -31,6 +31,14 @@ class BitcoinClient(object):
             blockchain_info = {'Error': str(exc)}
         return blockchain_info
 
+    def get_transaction_stats(self) -> dict:
+        try:
+            transaction_stats = self.proxy.call('getchaintxstats')
+        except Exception as exc:
+            transaction_stats = {'Error': str(exc)}
+        return transaction_stats
+
+
     def get_mempool_info(self) -> dict:
         try:
             mempool_info = self.proxy.call('getmempoolinfo')
