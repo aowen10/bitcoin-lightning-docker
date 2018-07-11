@@ -27,7 +27,6 @@ def create_app():
     admin = Admin(app=app,
                   name='Bitcoin/LN',
                   template_mode='bootstrap3',
-                  index_view=BlockchainView(name='Bitcoin')
                   )
     app.config['FLASK_ADMIN_FLUID_LAYOUT'] = True
     secret_key = os.environ.get('FLASK_SECRET_KEY')
@@ -40,6 +39,10 @@ def create_app():
     @app.route('/')
     def index():
         return redirect('/admin')
+
+    admin.add_view(BlockchainView(name='Blockchain',
+                                  endpoint='blockchain',
+                                  category='Bitcoin'))
 
     admin.add_view(LightningDashboardView(name='Dashboard',
                                           endpoint='lightning',

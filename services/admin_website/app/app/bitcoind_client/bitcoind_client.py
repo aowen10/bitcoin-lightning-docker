@@ -24,6 +24,13 @@ class BitcoinClient(object):
             category = 'error'
         return message, category
 
+    def get_network_info(self) -> dict:
+        try:
+            network_info = self.proxy.call('getnetworkinfo')
+        except Exception as exc:
+            network_info = {'Error': str(exc)}
+        return network_info
+
     def get_blockchain_info(self) -> dict:
         try:
             blockchain_info = self.proxy.call('getblockchaininfo')
