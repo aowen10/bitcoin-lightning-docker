@@ -20,6 +20,7 @@ class BlockchainView(AdminIndexView):
 
         blockchain_info = bitcoin.get_blockchain_info()
         transaction_stats = bitcoin.get_transaction_stats()
+        block_stats = bitcoin.get_block_stats(block_hash=blockchain_info['bestblockhash'])
 
         websocket_port = os.environ.get('WEBSOCKET_PORT', 8765)
 
@@ -27,6 +28,7 @@ class BlockchainView(AdminIndexView):
                            websocket_port=websocket_port,
                            blockchain_info=blockchain_info,
                            transaction_stats=transaction_stats,
+                           block_stats=block_stats,
                            network=os.environ.get('NETWORK', DEFAULT_NETWORK),
                            )
 
