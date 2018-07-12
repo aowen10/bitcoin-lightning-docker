@@ -27,6 +27,11 @@ class BitcoinClient(object):
             category = 'error'
         return message, category
 
+    def create_transaction(self):
+        destinations = self.get_new_addresses()
+        amount = self.get_wallet_info()['balance']
+
+
     def get_block_count(self) -> int:
         block_count = self.proxy.call('getblockcount')
         return block_count
@@ -104,6 +109,19 @@ class BitcoinClient(object):
             mempool_info = {'Error': str(exc)}
         return mempool_info
 
+    def get_raw_mempool(self, verbose: bool = True) -> List[dict]:
+        mempool_entries = self.proxy.call('getrawmempool', verbose)
+        return mempool_entries
+
+    def get_mempool_entry(self, txid: str) -> dict:
+        mempool_entry = self.proxy.call('getmempoolentry', txid)
+        return mempool_entry
+
+    def get_raw_transaction(self, txid: str, verbose: bool = True,
+                            block_hash: str = None) -> dict:
+        tx = self.proxy.call('getrawtransaction', txid, verbose, block_hash)
+        return tx
+
     def get_wallet_info(self) -> dict:
         try:
             wallet_info = self.proxy.call('getwalletinfo')
@@ -111,7 +129,7 @@ class BitcoinClient(object):
             wallet_info = {'Error': str(exc)}
         return wallet_info
 
-    def get_new_addresses(self, chain: str) -> dict:
+    def get_new_addresses(self, chain: str = None) -> dict:
         address_types = ['bech32', 'p2sh-segwit', 'legacy']
         try:
             new_addresses = {t: self.proxy.call('getnewaddress', '', t) for t in

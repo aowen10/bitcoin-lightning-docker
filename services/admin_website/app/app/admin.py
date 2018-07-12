@@ -2,12 +2,17 @@ import os
 import random
 import string
 
+from bitcoin.core import CBlock
 from flask import Flask, redirect
 from flask_admin import Admin
 
 from app.bitcoind_client.admin.blockchain_view import BlockchainView
 from app.bitcoind_client.admin.blocks_model_view import BlocksModelView
+from app.bitcoind_client.admin.mempool_entries_model_view import \
+    MempoolEntriesModelView
+from app.bitcoind_client.admin.wallet_view import WalletView
 from app.bitcoind_client.models.blocks import Blocks
+from app.bitcoind_client.models.mempool_entries import MempoolEntries
 from app.lnd_client.admin.channels_model_view import ChannelsModelView
 from app.lnd_client.admin.dashboard_view import LightningDashboardView
 from app.lnd_client.admin.invoices_model_view import InvoicesModelView
@@ -42,12 +47,20 @@ def create_app():
     def index():
         return redirect('/admin')
 
+    admin.add_view(WalletView(name='Wallet Info',
+                              endpoint='bitcoin',
+                              category='Bitcoin Wallet'))
+
     admin.add_view(BlockchainView(name='Blockchain',
                                   endpoint='blockchain',
                                   category='Bitcoin'))
 
     admin.add_view(BlocksModelView(Blocks,
                                    name='Blocks',
+                                   category='Bitcoin'))
+
+    admin.add_view(MempoolEntriesModelView(MempoolEntries,
+                                   name='Mempool Entries',
                                    category='Bitcoin'))
 
     admin.add_view(LightningDashboardView(name='Dashboard',

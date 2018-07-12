@@ -16,7 +16,8 @@ class BlocksModelView(BaseModelView):
     def scaffold_list_columns(self):
         return ['hash', 'confirmations', 'strippedsize', 'size', 'weight',
                 'height', 'version', 'versionHex', 'merkleroot', 'tx', 'time',
-                'mediantime', 'nonce', 'bits', 'difficulty', 'chainwork', 'nTx']
+                'mediantime', 'nonce', 'bits', 'difficulty', 'chainwork', 'nTx',
+                'previousblockhash']
 
     def scaffold_sortable_columns(self):
         pass
@@ -32,7 +33,7 @@ class BlocksModelView(BaseModelView):
         if page:
             height = self.bitcoin.get_block_count()
             seek_block_height = height - (page * page_size)
-            block_hash = self.bitcoin.get_block_hash(block_height=seek_block_height)
+            block_hash = self.bitcoin.get_block_hash(seek_block_height)
             blocks = self.bitcoin.get_blocks(last_block_hash=block_hash,
                                              count=page_size)
         else:
@@ -46,7 +47,7 @@ class BlocksModelView(BaseModelView):
 
     def create_model(self, form):
         num_blocks_to_mine = form.num_blocks.data
-        message, category = self.bitcoin.generate(num_blocks_to_mine=num_blocks_to_mine)
+        message, category = self.bitcoin.generate(num_blocks_to_mine)
         flash(message=message, category=category)
         return Blocks()
 
