@@ -11,7 +11,10 @@ class BitcoinClient(object):
     def __init__(self):
         network = os.environ.get('NETWORK', DEFAULT_NETWORK)
         bitcoin.SelectParams(network)
-        self.proxy = bitcoin.rpc.Proxy()
+
+    @property
+    def proxy(self):
+        return bitcoin.rpc.Proxy()
 
     def generate(self, num_blocks_to_mine: int) -> Tuple[str, str]:
         try:
