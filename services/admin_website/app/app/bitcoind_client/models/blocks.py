@@ -1,11 +1,4 @@
-# from marshmallow import Schema, fields
-#
-#
-# class Blocks(Schema):
-#     id = fields.Str()
-#     number = fields.Int()
-#     state = fields.Str()
-
-
 class Blocks(object):
-    pass
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)

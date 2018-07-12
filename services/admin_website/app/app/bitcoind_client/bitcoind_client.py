@@ -11,7 +11,7 @@ class BitcoinClient(object):
     def __init__(self):
         network = os.environ.get('NETWORK', DEFAULT_NETWORK)
         bitcoin.SelectParams(network)
-        self.proxy = bitcoin.rpc.Proxy(btc_conf_file='bitcoin.conf')
+        self.proxy = bitcoin.rpc.Proxy()
 
     def generate(self, num_blocks_to_mine: int) -> Tuple[str, str]:
         try:
@@ -42,7 +42,9 @@ class BitcoinClient(object):
         while len(blocks) < count:
             block = self.get_block(find_block_hash or last_block_hash, 1)
             blocks.append(block)
-            find_block_hash = block['previousblockhash']
+            find_block_hash = block.get('previousblockhash')
+            if find_block_hash is None:
+                break
 
         return blocks
 

@@ -9,6 +9,11 @@ RUN apk add --update --no-cache \
   && pip install virtualenv \
   && rm -rf /var/cache/apk/*
 
+
+RUN addgroup -S bitcoin && adduser -S -G bitcoin bitcoin
+
+USER bitcoin
+
 COPY requirements.txt /
 RUN pip install -r /requirements.txt
 

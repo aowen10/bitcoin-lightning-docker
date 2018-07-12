@@ -74,15 +74,6 @@ def create_app():
                                      name='Payments',
                                      category='LND'))
 
-    with open('bitcoin.conf', 'w') as conf_file:
-        lines = [
-            ('rpcconnect', os.environ.get('BITCOIND_RPC_HOST', '127.0.0.1')),
-            ('rpcuser', os.environ['BITCOIND_RPC_USER']),
-            ('rpcpassword', os.environ['BITCOIND_RPC_PASSWORD']),
-        ]
-        for line in lines:
-            conf_file.write('='.join(line) + '\n')
-
     return app
 
 if __name__ == '__main__':

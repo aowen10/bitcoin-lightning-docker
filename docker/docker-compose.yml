@@ -69,7 +69,7 @@ services:
     volumes:
       - ${PWD}/data:/home/bitcoin/.bitcoin
       - ${PWD}/lnd_data:/root/.lnd
-      - $PWD/../services/admin_website/app/app:/app/app
+      - ${PWD}/../services/admin_website/app/app:/app/app
     ports:
      - "5000:80"
 
