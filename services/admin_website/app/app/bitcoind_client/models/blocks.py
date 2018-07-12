@@ -1,4 +1,5 @@
-class Blocks(object):
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+from app.bitcoind_client.models import DefaultModel
+
+
+class Blocks(DefaultModel):
+    pass
