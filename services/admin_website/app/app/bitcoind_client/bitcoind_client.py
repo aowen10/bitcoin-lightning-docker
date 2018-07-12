@@ -28,6 +28,10 @@ class BitcoinClient(object):
         block_count = self.proxy.call('getblockcount')
         return block_count
 
+    def get_block_hash(self, block_height: int) -> str:
+        block_hash = self.proxy.call('getblockhash', block_height)
+        return block_hash
+
     def get_block(self, block_hash: str, verbosity: int = 1) -> dict:
         try:
             block = self.proxy.call('getblock', block_hash, verbosity)

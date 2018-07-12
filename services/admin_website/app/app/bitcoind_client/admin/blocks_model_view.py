@@ -29,7 +29,14 @@ class BlocksModelView(BaseModelView):
 
     def get_list(self, page, sort_field, sort_desc, search, filters,
                  page_size=None):
-        blocks = self.bitcoin.get_most_recent_blocks()
+        if page:
+            height = self.bitcoin.get_block_count()
+            seek_block_height = height - (page * page_size)
+            block_hash = self.bitcoin.get_block_hash(block_height=seek_block_height)
+            blocks = self.bitcoin.get_blocks(last_block_hash=block_hash,
+                                             count=page_size)
+        else:
+            blocks = self.bitcoin.get_most_recent_blocks(count=page_size)
         blocks = [Blocks(**b) for b in blocks]
         return self.bitcoin.get_block_count(), blocks
 
