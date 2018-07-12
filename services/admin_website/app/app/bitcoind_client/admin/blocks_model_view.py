@@ -1,14 +1,8 @@
+from flask import flash
 from flask_admin.model import BaseModelView
 
-#
-# mine_blocks_form = MineBlocksForm(request.form)
-# if request.method == 'POST' and mine_blocks_form.validate():
-#     num_blocks_to_mine = mine_blocks_form.num_blocks.data
-#     message, category = bitcoin.generate(num_blocks_to_mine=num_blocks_to_mine)
-#     flash(message=message, category=category)
-from wtforms import Form
-
 from app.bitcoind_client.bitcoind_client import BitcoinClient
+from app.bitcoind_client.forms import MineBlocksForm
 from app.bitcoind_client.models.blocks import Blocks
 
 
@@ -28,10 +22,7 @@ class BlocksModelView(BaseModelView):
         pass
 
     def scaffold_form(self):
-        class NewForm(Form):
-            pass
-
-        return NewForm
+        return MineBlocksForm
 
     def scaffold_list_form(self, widget=None, validators=None):
         pass
@@ -47,7 +38,10 @@ class BlocksModelView(BaseModelView):
         return Blocks(**block)
 
     def create_model(self, form):
-        pass
+        num_blocks_to_mine = form.num_blocks.data
+        message, category = self.bitcoin.generate(num_blocks_to_mine=num_blocks_to_mine)
+        flash(message=message, category=category)
+        return Blocks()
 
     def update_model(self, form, model):
         pass
