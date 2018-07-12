@@ -7,27 +7,34 @@ from flask_admin.model import BaseModelView
 #     num_blocks_to_mine = mine_blocks_form.num_blocks.data
 #     message, category = bitcoin.generate(num_blocks_to_mine=num_blocks_to_mine)
 #     flash(message=message, category=category)
+from wtforms import Form
+
+from app.bitcoind_client.bitcoind_client import BitcoinClient
 
 
 class BlocksModelView(BaseModelView):
+    bitcoin = BitcoinClient()
+
     def get_pk_value(self, model):
         pass
 
     def scaffold_list_columns(self):
-        pass
+        return []
 
     def scaffold_sortable_columns(self):
         pass
 
     def scaffold_form(self):
-        pass
+        class NewForm(Form):
+            pass
+        return NewForm
 
     def scaffold_list_form(self, widget=None, validators=None):
         pass
 
     def get_list(self, page, sort_field, sort_desc, search, filters,
                  page_size=None):
-        pass
+        return self.bitcoin.get_block_count(), self.bitcoin.get_most_recent_blocks()
 
     def get_one(self, id):
         pass

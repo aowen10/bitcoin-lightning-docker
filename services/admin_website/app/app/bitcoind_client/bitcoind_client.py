@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 import os
 
 import bitcoin.rpc
@@ -23,6 +23,37 @@ class BitcoinClient(object):
             message = str(exc)
             category = 'error'
         return message, category
+
+    def get_block_count(self) -> int:
+        block_count = self.proxy.call('getblockcount')
+        return block_count
+
+    def get_block(self, block_hash: str, verbosity: int = 1) -> dict:
+        try:
+            block = self.proxy.call('getblock', block_hash, verbosity)
+        except Exception as exc:
+            block = {'Error': str(exc)}
+        return block
+
+    def get_blocks(self, last_block_hash: str, count: int = 10) -> List[dict]:
+        blocks = []
+        find_block_hash = None
+
+        while len(blocks) < count:
+            block = self.get_block(find_block_hash or last_block_hash, 1)
+            blocks.append(block)
+            find_block_hash = block['previousblockhash']
+
+        return blocks
+
+    def get_best_block_hash(self) -> str:
+        best_block_hash = self.proxy.call('getbestblockhash')
+        return best_block_hash
+
+    def get_most_recent_blocks(self, count: int = 10) -> List[dict]:
+        best_block_hash = self.get_best_block_hash()
+        blocks = self.get_blocks(last_block_hash=best_block_hash, count=count)
+        return blocks
 
     def get_network_info(self) -> dict:
         try:
