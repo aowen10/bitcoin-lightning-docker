@@ -1,0 +1,56 @@
+{% extends 'admin/master.html' %}
+
+{% import 'definition_list_macro.html' as data %}
+
+{% block body %}
+    <style>
+        .top-row-buffer {
+            margin-top: 20px;
+        }
+
+        .top-desc-buffer {
+            margin-top: 5px;
+        }
+    </style>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-header">
+                    <h1>
+                        Bitcoin Transaction
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="row top-row-buffer">
+            <div class="col-md-8">
+                <dl class="dl-horizontal">
+                    {% for key in metadata %}
+                        <div
+                                class="top-desc-buffer">
+                            <dt>
+                            <span data-toggle="tooltip"
+                                  data-placement="bottom"
+                                  title="{{ tooltips[key] }}">
+                                {{ key }}
+                            </span>
+                            </dt>
+                            <dd>
+                                {{ transaction[key] }}
+                            </dd>
+                        </div>
+                    {% endfor %}
+                </dl>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block tail %}
+    <script>
+        jQuery(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+{% endblock %}

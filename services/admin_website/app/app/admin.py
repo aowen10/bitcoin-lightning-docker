@@ -10,6 +10,7 @@ from app.bitcoind_client.admin.blockchain_view import BlockchainView
 from app.bitcoind_client.admin.blocks_model_view import BlocksModelView
 from app.bitcoind_client.admin.mempool_entries_model_view import \
     MempoolEntriesModelView
+from app.bitcoind_client.admin.transaction_view import TransactionView
 from app.bitcoind_client.admin.wallet_view import WalletView
 from app.bitcoind_client.models.blocks import Blocks
 from app.bitcoind_client.models.mempool_entries import MempoolEntries
@@ -59,6 +60,11 @@ def create_app():
                                    name='Blocks',
                                    category='Bitcoin'))
 
+
+    admin.add_view(TransactionView(name='Transaction',
+                                   endpoint='bitcoin-transaction',
+                                   category='Bitcoin'))
+
     admin.add_view(MempoolEntriesModelView(MempoolEntries,
                                    name='Mempool Entries',
                                    category='Bitcoin'))
@@ -68,7 +74,7 @@ def create_app():
                                           category='LND'))
 
     admin.add_view(TransactionsModelView(Transaction,
-                                         name='Transactions',
+                                         name='LND Transactions',
                                          category='LND'))
 
     admin.add_view(PeersModelView(Peer,

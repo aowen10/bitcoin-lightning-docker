@@ -40,12 +40,18 @@ class BitcoinClient(object):
         block_hash = self.proxy.call('getblockhash', block_height)
         return block_hash
 
-    def get_block(self, block_hash: str, verbosity: int = 1) -> dict:
-        try:
-            block = self.proxy.call('getblock', block_hash, verbosity)
-        except Exception as exc:
-            block = {'Error': str(exc)}
+    def get_block(self, block_hash: str = None, verbosity: int = 1) -> dict:
+
+        if block_hash is None:
+            block_hash = self.get_best_block_hash()
+
+        block = self.proxy.call('getblock', block_hash, verbosity)
         return block
+
+    def get_recent_txid(self):
+        block = self.get_block()
+        transactions = block['tx']
+        return transactions[0]
 
     def get_blocks(self, last_block_hash: str, count: int = 10) -> List[dict]:
         blocks = []
