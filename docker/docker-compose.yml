@@ -66,8 +66,12 @@ services:
       - NETWORK=${NETWORK}
       - LND_RPC_URI=lnd:10009
       - LND_PEER_URI=lnd:9735
+      - FLASK_APP=app/main.py
+      - FLASK_DEBUG=1
+      - 'RUN=flask run --host=0.0.0.0 --port=80'
+    command: flask run --host=0.0.0.0 --port=80
     volumes:
-      - ${PWD}/data:/home/bitcoin/.bitcoin
+      - ${PWD}/data:/root/.bitcoin
       - ${PWD}/lnd_data:/root/.lnd
       - ${PWD}/../services/admin_website/app/app:/app/app
     ports:
