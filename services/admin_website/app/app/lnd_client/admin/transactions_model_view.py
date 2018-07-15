@@ -1,6 +1,7 @@
 from flask_admin import expose
 from google.protobuf.json_format import MessageToDict
 
+from app.formatters.lnd import tx_hash_formatter
 from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import SendCoinsRequest
 
@@ -12,6 +13,10 @@ class TransactionsModelView(LNDModelView):
     primary_key = 'tx_hash'
 
     list_template = 'admin/transactions_list.html'
+
+    column_formatters = {
+        'tx_hash': tx_hash_formatter
+    }
 
     def scaffold_form(self):
         form_class = super(TransactionsModelView, self).scaffold_form()

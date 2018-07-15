@@ -1,14 +1,19 @@
+from flask import url_for
 from markupsafe import Markup
 
 from app.lnd_client.peer_directory import peer_directory
+
 
 def format_pub_key(long_pub_key: str):
     if long_pub_key:
         short_pub_key = long_pub_key[0:20]
         name = ''
         if peer_directory[long_pub_key].name:
-            name = '<span class="label label-primary">{0}</span>'.format(peer_directory[long_pub_key].name)
-        return Markup('<div style="white-space: nowrap; overflow: hidden;">{0} {1}</div>'.format(short_pub_key, name))
+            name = '<span class="label label-primary">{0}</span>'.format(
+                peer_directory[long_pub_key].name)
+        return Markup(
+            '<div style="white-space: nowrap; overflow: hidden;">{0} {1}</div>'.format(
+                short_pub_key, name))
     else:
         return ''
 
@@ -22,3 +27,10 @@ def path_formatter(view, context, model, name):
     pub_keys = getattr(model, name)
     formatted = '<br>'.join([format_pub_key(p) for p in pub_keys])
     return Markup(formatted)
+
+
+def tx_hash_formatter(view, context, model, name):
+    tx_hash = getattr(model, name)
+    url = url_for('bitcoin-transaction.index', txid=tx_hash)
+    link = f''''<a href="{url}">{tx_hash}</a>'''
+    return Markup(link)
