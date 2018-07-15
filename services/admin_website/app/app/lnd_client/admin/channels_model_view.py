@@ -9,6 +9,7 @@ from google.protobuf.json_format import MessageToDict
 from grpc import StatusCode
 from markupsafe import Markup
 
+from app.formatters.common import satoshi_formatter
 from app.formatters.lnd import pub_key_formatter, channel_point_formatter
 from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import (
@@ -58,7 +59,16 @@ class ChannelsModelView(LNDModelView):
 
     column_formatters = {
         'remote_pubkey': pub_key_formatter,
-        'channel_point': channel_point_formatter
+        'channel_point': channel_point_formatter,
+        'capacity': satoshi_formatter,
+        'local_balance': satoshi_formatter,
+        'remote_balance': satoshi_formatter,
+        'commit_fee': satoshi_formatter,
+        'fee_per_kw': satoshi_formatter,
+        'total_satoshis_sent': satoshi_formatter,
+        'total_satoshis_received': satoshi_formatter,
+        'unsettled_balance': satoshi_formatter,
+
     }
 
     def scaffold_form(self):

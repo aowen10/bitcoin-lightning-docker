@@ -48,3 +48,4 @@ def channel_point_formatter(view, context, model, name):
     link = get_txid_link(txid)
     link += ':' + str(output_index)
     return link
+

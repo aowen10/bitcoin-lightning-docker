@@ -1,7 +1,7 @@
 from flask_admin import expose
 from google.protobuf.json_format import MessageToDict
 
-from app.formatters.common import format_hash
+from app.formatters.common import format_hash, satoshi_formatter
 from app.formatters.lnd import tx_hash_formatter
 from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import SendCoinsRequest
@@ -17,7 +17,9 @@ class TransactionsModelView(LNDModelView):
 
     column_formatters = {
         'tx_hash': tx_hash_formatter,
-        'block_hash': format_hash
+        'block_hash': format_hash,
+        'amount': satoshi_formatter,
+        'total_fees': satoshi_formatter,
     }
 
     def scaffold_form(self):
