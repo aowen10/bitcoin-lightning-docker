@@ -4,7 +4,8 @@ from flask_admin.model import BaseModelView
 from app.bitcoind_client.bitcoind_client import BitcoinClient
 from app.bitcoind_client.forms import MineBlocksForm
 from app.bitcoind_client.models.blocks import Blocks
-from app.formatters.bitcoind import format_block_txids
+from app.formatters.bitcoind import format_block_txids, format_timestamp, \
+    format_hash
 
 
 class BlocksModelView(BaseModelView):
@@ -12,7 +13,13 @@ class BlocksModelView(BaseModelView):
     can_view_details = True
 
     column_formatters = {
-        'tx': format_block_txids
+        'tx': format_block_txids,
+        'time': format_timestamp,
+        'mediantime': format_timestamp,
+        'chainwork': format_hash,
+        'previousblockhash': format_hash,
+        'merkleroot': format_hash,
+        'hash': format_hash
     }
 
     def get_pk_value(self, model):
