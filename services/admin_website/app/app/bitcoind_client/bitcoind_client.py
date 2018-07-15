@@ -115,7 +115,7 @@ class BitcoinClient(object):
             mempool_info = {'Error': str(exc)}
         return mempool_info
 
-    def get_raw_mempool(self, verbose: bool = True) -> List[dict]:
+    def get_raw_mempool(self, verbose: bool = True) -> dict:
         mempool_entries = self.proxy.call('getrawmempool', verbose)
         return mempool_entries
 

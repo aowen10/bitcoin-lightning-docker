@@ -4,11 +4,16 @@ from flask_admin.model import BaseModelView
 from app.bitcoind_client.bitcoind_client import BitcoinClient
 from app.bitcoind_client.forms import MineBlocksForm
 from app.bitcoind_client.models.blocks import Blocks
+from app.formatters.bitcoind import format_block_txids
 
 
 class BlocksModelView(BaseModelView):
     bitcoin = BitcoinClient()
     can_view_details = True
+
+    column_formatters = {
+        'tx': format_block_txids
+    }
 
     def get_pk_value(self, model):
         return model.hash
