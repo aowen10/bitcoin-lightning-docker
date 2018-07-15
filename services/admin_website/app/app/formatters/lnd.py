@@ -29,8 +29,22 @@ def path_formatter(view, context, model, name):
     return Markup(formatted)
 
 
+def get_txid_link(txid: str):
+    url = url_for('bitcoin-transaction.index', txid=txid)
+    txid = txid[-20:]
+    link = f'''<a href="{url}">{txid}</a>'''
+    return Markup(link)
+
+
 def tx_hash_formatter(view, context, model, name):
     tx_hash = getattr(model, name)
-    url = url_for('bitcoin-transaction.index', txid=tx_hash)
-    link = f''''<a href="{url}">{tx_hash}</a>'''
+    link = get_txid_link(tx_hash)
     return Markup(link)
+
+
+def channel_point_formatter(view, context, model, name):
+    channel_point = getattr(model, name)
+    txid, output_index = channel_point.split(':')
+    link = get_txid_link(txid)
+    link += ':' + str(output_index)
+    return link

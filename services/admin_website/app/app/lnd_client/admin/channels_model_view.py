@@ -9,7 +9,7 @@ from google.protobuf.json_format import MessageToDict
 from grpc import StatusCode
 from markupsafe import Markup
 
-from app.formatters.lnd import pub_key_formatter
+from app.formatters.lnd import pub_key_formatter, channel_point_formatter
 from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import (
     Channel,
@@ -57,7 +57,8 @@ class ChannelsModelView(LNDModelView):
     list_template = 'admin/channels_list.html'
 
     column_formatters = {
-        'remote_pubkey': pub_key_formatter
+        'remote_pubkey': pub_key_formatter,
+        'channel_point': channel_point_formatter
     }
 
     def scaffold_form(self):
