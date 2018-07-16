@@ -1,9 +1,12 @@
 from flask import flash, request, redirect, url_for
 from flask_admin import expose
 from flask_admin.babel import gettext
-from wtforms import StringField
+from flask_admin.model.fields import AjaxSelectField
+from wtforms import StringField, Form
 
 from app.formatters.lnd import pub_key_formatter
+from app.lnd_client.admin.ajax_model_loaders import \
+    PeersDirectoryAjaxModelLoader
 from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import LightningAddress, Peer
 
@@ -21,11 +24,22 @@ class PeersModelView(LNDModelView):
         'pub_key': pub_key_formatter
     }
 
-    def scaffold_form(self):
+    def scaffold_form(self) -> Form:
         form_class = super(PeersModelView, self).scaffold_form()
-        form_class.pubkey_at_host = StringField('pubkey@host')
-        return form_class
+        peer_directory_ajax_loader = PeersDirectoryAjaxModelLoader(
+            'node_pubkey_string',
+            options=None,
+            model=Peer,
+            placeholder='Select node pubkey')
 
+        old = form_class.node_pubkey_string
+        ajax_field = AjaxSelectField(loader=peer_directory_ajax_loader,
+                                     label='node_pubkey_string',
+                                     allow_blank=True,
+                                     description=old.kwargs['description'])
+
+        form_class.pubkey_at_host = ajax_field
+        return form_class
 
     def create_model(self, form_data):
         if hasattr(form_data, 'data'):
@@ -61,7 +75,7 @@ class PeersModelView(LNDModelView):
             self.create_model(request.form.copy())
             return redirect(url_for('peer.index_view'))
 
-        form = self.scaffold_form()
+        FormClass = self.scaffold_form()
 
-        self._template_args['add_peer_form'] = form()
+        self._template_args['add_peer_form'] = FormClass()
         return super(PeersModelView, self).index_view()
