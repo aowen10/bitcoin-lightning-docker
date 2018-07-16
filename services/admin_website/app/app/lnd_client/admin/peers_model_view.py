@@ -1,4 +1,5 @@
-from flask import flash
+from flask import flash, request, redirect, url_for
+from flask_admin import expose
 from flask_admin.babel import gettext
 from wtforms import StringField
 
@@ -15,7 +16,7 @@ class PeersModelView(LNDModelView):
     primary_key = 'pub_key'
 
     column_default_sort = 'pub_key'
-
+    list_template = 'admin/peers_list.html'
     column_formatters = {
         'pub_key': pub_key_formatter
     }
@@ -26,13 +27,15 @@ class PeersModelView(LNDModelView):
         return form_class
 
 
-    def create_model(self, form):
-        if form.data.get('pubkey_at_host'):
-            pubkey = form.data.get('pubkey_at_host').split('@')[0]
-            host = form.data.get('pubkey_at_host').split('@')[1]
+    def create_model(self, form_data):
+        if hasattr(form_data, 'data'):
+            form_data = form_data.data
+        if form_data.get('pubkey_at_host'):
+            pubkey = form_data.get('pubkey_at_host').split('@')[0]
+            host = form_data.get('pubkey_at_host').split('@')[1]
         else:
-            pubkey = form.data.get('pubkey')
-            host = form.data.get('host')
+            pubkey = form_data.get('pubkey')
+            host = form_data.get('host')
         try:
             self.ln.connect_peer(pubkey=pubkey, host=host)
         except Exception as exc:
@@ -51,3 +54,14 @@ class PeersModelView(LNDModelView):
             else:
                 flash(gettext(str(exc)))
             return False
+
+    @expose('/', methods=('GET', 'POST'))
+    def index_view(self):
+        if request.method == 'POST':
+            self.create_model(request.form.copy())
+            return redirect(url_for('peer.index_view'))
+
+        form = self.scaffold_form()
+
+        self._template_args['add_peer_form'] = form()
+        return super(PeersModelView, self).index_view()
