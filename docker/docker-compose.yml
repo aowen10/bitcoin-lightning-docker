@@ -1,93 +1,99 @@
 version: '3.3'
 services:
 
-  bitcoind:
+######################
+# Regtest Containers #
+######################
+
+  bitcoind-regtest:
     image: ruimarinho/bitcoin-core
-    container_name: bitcoind
+    container_name: bitcoind-regtest
     volumes:
-      - ${PWD}/data:/root/.bitcoin:ro
-      - ${PWD}/data:/home/bitcoin/.bitcoin
+      - ${PWD}/bitcoind-regtest-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
       -server
-      -${NETWORK}
+      -regtest
       -rpcuser=${RPCUSER}
       -rpcauth=${RPCAUTH}
       -rpcallowip=0.0.0.0/0
-      -debug=${DEBUG}
-      -zmqpubrawblock=tcp://*:28332
-      -zmqpubrawtx=tcp://*:28332
-      -zmqpubhashtx=tcp://*:28332
-      -zmqpubhashblock=tcp://*:28332
-      -txindex=${TXINDEX}
+      -debug=0
+      -zmqpubrawblock=tcp://*:28334
+      -zmqpubrawtx=tcp://*:28334
+      -zmqpubhashtx=tcp://*:28334
+      -zmqpubhashblock=tcp://*:28334
+      -txindex=1
     expose:
-     - "28332"
+     - "28334" # regtest ZMQ
+     # The RPC and p2p ports are exposed in the parent image
     ports:
-     - "28332:28332"
-     - "18332:18332"
+     - "28334:28334" # regtest ZMQ
+     - "18334:18334" # regtest RPC
 
-  lnd:
+  lnd-regtest:
     image: lnd
-    container_name: lnd
+    container_name: lnd-regtest
     build:
       context: ${PWD}/lnd/
       dockerfile: ${PWD}/lnd/Dockerfile
     volumes:
-      - ${PWD}/lnd_data:/root/.lnd
+      - ${PWD}/lnd-regtest-data:/root/.lnd
     environment:
-      - RPCHOST=bitcoind
+      - RPCHOST=bitcoind-regtest
       - RPCUSER=${RPCUSER}
       - RPCPASS=${RPCPASSWORD}
-      - NETWORK=${NETWORK}
-      - CHAIN=${CHAIN}
-      - DEBUG=${DEBUGLEVEL}
-      - BITCOIN_NODE=${BITCOIN_NODE}
-      - ZMQ_PATH=${ZMQ_PATH}
+      - NETWORK=regtest
+      - CHAIN=bitcoin
+      - DEBUG=debug
+      - BITCOIN_NODE=bitcoind
+      - ZMQ_PATH=tcp://bitcoind-regtest:28334
+      - RPC_LISTEN=:10011
+      - REST_LISTEN=:8082
+      - LISTEN=:9737
     entrypoint: ["./start-lnd.sh"]
     restart: always
-
     ports:
-     - "10009:10009" # RPC
-     - "8080:8080"   # REST
-     - "9735:9735"   # p2p
+     - "10011:10011" # regtest gRPC
+     - "8082:8082"   # regtest REST
+     - "9737:9737"   # regtest p2p
 
-  admin_website:
+  logging-service-regtest:
+    image: logging-service
+    container_name: logging-service-regtest
+    build:
+      context: ../services/logging
+      dockerfile: ${PWD}/services/logging/Dockerfile
+    environment:
+      - WEBSOCKET_HOST=logging-service-regtest
+      - WEBSOCKET_PORT=8765
+    volumes:
+      - ${PWD}/bitcoind-regtest-data:/home/bitcoin/.bitcoin:ro
+      - ${PWD}/lnd-regtest-data:/root/.lnd:ro
+    ports:
+     - "8765:8765"
+
+  admin-website-regtest:
     image: admin_website
-    container_name: admin_website
+    container_name: admin-website-regtest
     build:
       context: ../services/admin_website
       dockerfile: ${PWD}/services/admin_website/Dockerfile
     environment:
-      - WEBSOCKET_PORT=${WEBSOCKET_PORT}
-      - WEBSOCKET_HOST=${WEBSOCKET_HOST}
-      - BITCOIND_RPC_HOST=bitcoind
+      - WEBSOCKET_HOST=logging-service-regtest
+      - WEBSOCKET_PORT=8765
+      - BITCOIND_RPC_HOST=bitcoind-regtest
       - BITCOIND_RPC_USER=${RPCUSER}
       - BITCOIND_RPC_PASSWORD=${RPCPASSWORD}
-      - NETWORK=${NETWORK}
-      - LND_RPC_URI=lnd:10009
-      - LND_PEER_URI=lnd:9735
+      - NETWORK=regtest
+      - LND_RPC_URI=lnd-regtest:10011
+      - LND_PEER_URI=lnd-regtest:9737
       - FLASK_APP=app/main.py
       - FLASK_DEBUG=1
       - 'RUN=flask run --host=0.0.0.0 --port=80'
     command: flask run --host=0.0.0.0 --port=80
     volumes:
-      - ${PWD}/data:/root/.bitcoin
-      - ${PWD}/lnd_data:/root/.lnd
+      - ${PWD}/bitcoind-regtest-data:/root/.bitcoin
+      - ${PWD}/lnd-regtest-data:/root/.lnd
       - ${PWD}/../services/admin_website/app/app:/app/app
     ports:
-     - "5000:80"
-
-  logging_service:
-    image: logging_service
-    container_name: logging_service
-    build:
-      context: ../services/logging
-      dockerfile: ${PWD}/services/logging/Dockerfile
-    environment:
-      - WEBSOCKET_PORT=${WEBSOCKET_PORT}
-      - WEBSOCKET_HOST=${WEBSOCKET_HOST}
-    volumes:
-      - ${PWD}/data:/home/bitcoin/.bitcoin:ro
-      - ${PWD}/lnd_data:/root/.lnd:ro
-    ports:
-     - "${WEBSOCKET_PORT}:${WEBSOCKET_PORT}"
+     - "5003:80" # expose regtest admin website to localhost:5003
