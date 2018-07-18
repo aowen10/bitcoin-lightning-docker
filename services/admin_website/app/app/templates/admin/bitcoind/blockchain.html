@@ -26,49 +26,15 @@
     </script>
 
     <div class="container">
-
-        {% if network == 'regtest' %}
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-10">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Regtest dials</h3>
-                    </div>
-                    <div class="panel-body">
-                        <dl class="dl-horizontal">
-                            <form method=post>
-                                {{ render_field(mine_blocks_form.num_blocks) }}
-                                <button class="btn btn-primary" type="submit" value="Mine">Mine</button>
-                            </form>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-1"></div>
-        </div>
-        {% endif %}
-
         <div class="row">
             <div class="col-md-1">
             </div>
             <div class="col-md-10">
-                {{ data.definition_list(title='Receive coins', data_dict=new_address) }}
+                {{ data.definition_list(title='Network Info', data_dict=network_info) }}
 
             </div>
             <div class="col-md-1"></div>
         </div>
-
-        <div class="row">
-            <div class="col-md-1">
-            </div>
-            <div class="col-md-10">
-                {{ data.definition_list(title='Wallet Info', data_dict=wallet_info) }}
-
-            </div>
-            <div class="col-md-1"></div>
-        </div>
-
         <div class="row">
             <div class="col-md-1">
             </div>
@@ -78,20 +44,21 @@
             </div>
             <div class="col-md-1"></div>
         </div>
-
         <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-5">
-                {{ data.definition_list(title='Mempool Info', data_dict=mempool_info) }}
+            <div class="col-md-1">
             </div>
-            <div class="col-md-5">
-                <div class="progress">
-                    <div id="progress-bar" class="progress-bar"
-                         role="progressbar" aria-valuenow="0" aria-valuemin="0"
-                         aria-valuemax="10000" style="width: 0%;">
-                        Waiting for websocket connection...
-                    </div>
-                </div>
+            <div class="col-md-10">
+                {{ data.definition_list(title='Transaction Stats', data_dict=transaction_stats) }}
+
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-10">
+                {{ data.definition_list(title='Block Stats', data_dict=block_stats) }}
+
             </div>
             <div class="col-md-1"></div>
         </div>

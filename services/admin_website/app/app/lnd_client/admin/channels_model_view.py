@@ -1,44 +1,25 @@
+import codecs
+
 from flask import flash
 from flask_admin import expose
 from flask_admin.babel import gettext
-from flask_admin.model.ajax import AjaxModelLoader, DEFAULT_PAGE_SIZE
 from flask_admin.model.fields import AjaxSelectField
 from google.protobuf.json_format import MessageToDict
 from grpc import StatusCode
-from markupsafe import Markup
 
-from app.formatters.lnd import pub_key_formatter
+from app.formatters.common import satoshi_formatter
+from app.formatters.lnd import channel_point_formatter, pub_key_formatter
+from app.lnd_client.admin.ajax_model_loaders import PeersAjaxModelLoader
 from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import (
-    Channel,
     OpenChannelRequest,
     Peer
 )
 
 
-class PeersAjaxModelLoader(AjaxModelLoader):
-    def __init__(self, name, model, **options):
-        super(PeersAjaxModelLoader, self).__init__(name, options)
-
-        self.model = model
-
-    def format(self, model):
-        if model is None:
-            return '', ''
-        formatted = pub_key_formatter(view=None, context=None, model=model, name='pub_key')
-        return model.pub_key, Markup(formatted).striptags()
-
-    def get_one(self, pk):
-        return [r for r in LNDModelView(Channel).ln.get_peers()
-                if r.pub_key == pk][0]
-
-    def get_list(self, query, offset=0, limit=DEFAULT_PAGE_SIZE):
-        pub_keys = LNDModelView(Channel).ln.get_peers()
-        return pub_keys
-
-
 class ChannelsModelView(LNDModelView):
-    peer_ajax_loader = PeersAjaxModelLoader('node_pubkey_string', options=None,
+    peer_ajax_loader = PeersAjaxModelLoader('node_pubkey_string',
+                                            options=None,
                                             model=Peer,
                                             placeholder='Select node pubkey')
 
@@ -55,7 +36,17 @@ class ChannelsModelView(LNDModelView):
     list_template = 'admin/channels_list.html'
 
     column_formatters = {
-        'remote_pubkey': pub_key_formatter
+        'remote_pubkey': pub_key_formatter,
+        'channel_point': channel_point_formatter,
+        'capacity': satoshi_formatter,
+        'local_balance': satoshi_formatter,
+        'remote_balance': satoshi_formatter,
+        'commit_fee': satoshi_formatter,
+        'fee_per_kw': satoshi_formatter,
+        'total_satoshis_sent': satoshi_formatter,
+        'total_satoshis_received': satoshi_formatter,
+        'unsettled_balance': satoshi_formatter,
+
     }
 
     def scaffold_form(self):
@@ -65,19 +56,19 @@ class ChannelsModelView(LNDModelView):
                                      label='node_pubkey_string',
                                      allow_blank=True,
                                      description=old.kwargs['description'])
-        form_class.local_funding_amount.kwargs['default'] = 60000
+        form_class.node_pubkey_string = ajax_field
+        form_class.local_funding_amount.kwargs['default'] = 500000
         form_class.push_sat.kwargs['default'] = 0
         form_class.target_conf.kwargs['default'] = 3
         form_class.sat_per_byte.kwargs['default'] = 250
         form_class.min_htlc_msat.kwargs['default'] = 1
-        form_class.node_pubkey_string = ajax_field
         return form_class
 
     def create_model(self, form):
         data = form.data
         data['node_pubkey_string'] = data['node_pubkey_string'].pub_key
         try:
-            response = self.ln.open_channel(**data)
+            response = self.ln.open_channel_sync(**data)
         except Exception as exc:
             if hasattr(exc, '_state'):
                 flash(gettext(exc._state.details), 'error')
@@ -85,12 +76,14 @@ class ChannelsModelView(LNDModelView):
                 flash(gettext(str(exc)))
             return False
 
-        if response.code() == StatusCode.UNKNOWN:
+        if hasattr(response, 'code') and response.code() == StatusCode.UNKNOWN:
             flash(gettext(response._state.details), 'error')
             return False
         else:
+            txid = codecs.decode(response.funding_txid_bytes, 'hex')
+            outpoint = ':'.join([txid, str(response.output_index)])
             new_channel = [c for c in self.ln.get_channels()
-                           if c.remote_pubkey == data['node_pubkey_string']][0]
+                           if c.channel_point == outpoint][0]
             return new_channel
 
     @expose('/')
