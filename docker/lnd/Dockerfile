@@ -13,9 +13,6 @@ RUN  cd /go/src/github.com/lightningnetwork/lnd &&  make &&  make install
 # Start a new, final image to reduce size.
 FROM alpine as final
 
-# Expose lnd ports (server, rpc, REST).
-EXPOSE 9735 10009 8080
-
 # Copy the binaries and entrypoint from the builder image.
 COPY --from=builder /go/bin/lncli /bin/
 COPY --from=builder /go/bin/lnd /bin/

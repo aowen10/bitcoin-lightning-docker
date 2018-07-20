@@ -145,10 +145,7 @@ class BitcoinClient(object):
         return tx
 
     def get_wallet_info(self) -> dict:
-        try:
-            wallet_info = self.proxy.call('getwalletinfo')
-        except Exception as exc:
-            wallet_info = {'Error': str(exc)}
+        wallet_info = self.proxy.call('getwalletinfo')
         return wallet_info
 
     def get_new_addresses(self, chain: str = None) -> dict:

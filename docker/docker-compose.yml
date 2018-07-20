@@ -54,6 +54,10 @@ services:
       - LISTEN=:9737
     entrypoint: ["./start-lnd.sh"]
     restart: always
+    expose:
+     - "10011" # testnet gRPC
+     - "8082"  # testnet REST
+     - "9737"  # testnet p2p
     ports:
      - "10011:10011" # regtest gRPC
      - "8082:8082"   # regtest REST
@@ -152,6 +156,10 @@ services:
       - LISTEN=:9736
     entrypoint: ["./start-lnd.sh"]
     restart: always
+    expose:
+     - "10012" # testnet gRPC
+     - "8081"  # testnet REST
+     - "9736"  # testnet p2p
     ports:
      - "10012:10012" # testnet gRPC
      - "8081:8081"   # testnet REST

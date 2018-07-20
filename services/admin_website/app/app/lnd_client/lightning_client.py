@@ -67,7 +67,9 @@ class LightningClient(object):
         self.lnd_client = lnrpc.LightningStub(self.grpc_channel)
 
     def get_info(self) -> ln.GetInfoResponse:
-        return self.lnd_client.GetInfo(ln.GetInfoRequest())
+        request = ln.GetInfoRequest()
+        response = self.lnd_client.GetInfo(request)
+        return response
 
     @property
     def pubkey(self):
@@ -105,7 +107,9 @@ class LightningClient(object):
         return response.address
 
     def get_peers(self) -> ln.ListPeersResponse:
-        return self.lnd_client.ListPeers(ln.ListPeersRequest()).peers
+        request = ln.ListPeersRequest()
+        response = self.lnd_client.ListPeers(request)
+        return response.peers
 
     def connect_peer(self, pubkey: str, host: str) -> ln.ConnectPeerResponse:
         address = ln.LightningAddress(pubkey=pubkey, host=host)
