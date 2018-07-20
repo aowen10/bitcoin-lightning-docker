@@ -1,3 +1,4 @@
+import platform
 from typing import Tuple, List
 import os
 
@@ -9,12 +10,27 @@ from app.constants import DEFAULT_NETWORK, TESTNET_FAUCET
 
 class BitcoinClient(object):
     def __init__(self):
-        network = os.environ.get('NETWORK', DEFAULT_NETWORK)
-        bitcoin.SelectParams(network)
+        self.network = os.environ.get('NETWORK', DEFAULT_NETWORK)
+        bitcoin.SelectParams(self.network)
 
     @property
     def proxy(self):
-        return bitcoin.rpc.Proxy()
+
+        conf_file = f'bitcoind-{self.network}.conf'
+
+        # Check for the standard spot for configuration files
+        if platform.system() == 'Darwin':
+            btc_conf_path = os.path.expanduser('~/Library/Application Support/Bitcoin/')
+        elif platform.system() == 'Windows':
+            btc_conf_path = os.path.join(os.environ['APPDATA'], 'Bitcoin')
+        else:
+            btc_conf_path = os.path.expanduser('~/.bitcoin')
+
+        if not os.path.exists(os.path.join(btc_conf_path, conf_file)):
+            btc_conf_path = os.path.dirname(os.path.abspath(__file__))
+
+        btc_conf_path = os.path.join(btc_conf_path, conf_file)
+        return bitcoin.rpc.Proxy(btc_conf_file=btc_conf_path)
 
     def generate(self, num_blocks_to_mine: int) -> Tuple[str, str]:
         try:

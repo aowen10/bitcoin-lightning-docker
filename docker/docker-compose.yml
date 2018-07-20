@@ -6,16 +6,18 @@ services:
 ######################
 
   bitcoind-regtest:
-    image: ruimarinho/bitcoin-core
+    image: bitcoind
     container_name: bitcoind-regtest
+    build:
+      context: ../services/admin_website/app/app/bitcoind_client
+      dockerfile: ${PWD}/bitcoind/Dockerfile
     volumes:
       - ${PWD}/bitcoind-regtest-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
+      -conf=/bitcoind-regtest.conf
       -server
       -regtest
-      -rpcuser=${RPCUSER}
-      -rpcauth=${RPCAUTH}
       -rpcallowip=0.0.0.0/0
       -debug=0
       -zmqpubrawblock=tcp://*:28334
@@ -28,7 +30,7 @@ services:
      # The RPC and p2p ports are exposed in the parent image
     ports:
      - "28334:28334" # regtest ZMQ
-     - "18334:18334" # regtest RPC
+     - "18443:18443" # regtest RPC
 
   lnd-regtest:
     image: lnd
@@ -40,8 +42,8 @@ services:
       - ${PWD}/lnd-regtest-data:/root/.lnd
     environment:
       - RPCHOST=bitcoind-regtest
-      - RPCUSER=${RPCUSER}
-      - RPCPASS=${RPCPASSWORD}
+      - RPCUSER=user
+      - RPCPASS=yPFfmRweQDFSAyqvgP4LuTO0LYKB7eBVBrLAHo4Nxwo=
       - NETWORK=regtest
       - CHAIN=bitcoin
       - DEBUG=debug
@@ -61,7 +63,7 @@ services:
     image: logging-service
     container_name: logging-service-regtest
     build:
-      context: ../services/logging
+      context: ../services/logging # The app directory's parent
       dockerfile: ${PWD}/services/logging/Dockerfile
     environment:
       - WEBSOCKET_HOST=logging-service-regtest
@@ -76,14 +78,12 @@ services:
     image: admin_website
     container_name: admin-website-regtest
     build:
-      context: ../services/admin_website
+      context: ../services/admin_website # The app directory's parent
       dockerfile: ${PWD}/services/admin_website/Dockerfile
     environment:
       - WEBSOCKET_HOST=logging-service-regtest
       - WEBSOCKET_PORT=8765
       - BITCOIND_RPC_HOST=bitcoind-regtest
-      - BITCOIND_RPC_USER=${RPCUSER}
-      - BITCOIND_RPC_PASSWORD=${RPCPASSWORD}
       - NETWORK=regtest
       - LND_RPC_URI=lnd-regtest:10011
       - LND_PEER_URI=lnd-regtest:9737
