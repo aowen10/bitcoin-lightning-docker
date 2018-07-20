@@ -26,11 +26,13 @@ services:
       -zmqpubhashblock=tcp://*:28334
       -txindex=1
     expose:
+     - "18443" # regtest RPC
+     - "18444" # regtest p2p
      - "28334" # regtest ZMQ
-     # The RPC and p2p ports are exposed in the parent image
     ports:
-     - "28334:28334" # regtest ZMQ
      - "18443:18443" # regtest RPC
+     - "18444:18444" # regtest p2p
+     - "28334:28334" # regtest ZMQ
 
   lnd-regtest:
     image: lnd
@@ -128,11 +130,14 @@ services:
       -zmqpubhashblock=tcp://*:28333
       -txindex=1
     expose:
-     - "28333" # testnet ZMQ
+     - "18332"  # testnet RPC
+     - "18333"  # testnet p2p
+     - "28333"  # testnet ZMQ
      # The RPC and p2p ports are exposed in the parent image
     ports:
+     - "18332:18332" # testnet RPC
+     - "18333:18333" # testnet p2p
      - "28333:28333" # testnet ZMQ
-     - "18333:18333" # testnet RPC
 
   lnd-testnet:
     image: lnd
