@@ -163,3 +163,4 @@ venv.bak/
 /docker/lnd_data/
 /venv/
 /.idea/
+/docker/*-data/

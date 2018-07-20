@@ -49,10 +49,15 @@ CHAIN=$(set_default "$CHAIN" "bitcoin")
 BITCOIN_NODE=$(set_default "$BITCOIN_NODE" "bitcoind")
 BACKEND="bitcoind"
 
+RPC_LISTEN=$(set_default "$RPC_LISTEN" ":10009")
+REST_LISTEN=$(set_default "$REST_LISTEN" ":8080")
+LISTEN=$(set_default "$LISTEN" ":9735")
+
+
 exec lnd \
-    --rpclisten=":10009" \
-    --restlisten=":8080" \
-    --listen=":9735" \
+    --rpclisten="$RPC_LISTEN" \
+    --restlisten="$REST_LISTEN" \
+    --listen="$LISTEN" \
     --tlsextradomain="lnd" \
     --noencryptwallet \
     --logdir="/data" \

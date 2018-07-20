@@ -27,16 +27,15 @@ class PeersModelView(LNDModelView):
     def scaffold_form(self) -> Form:
         form_class = super(PeersModelView, self).scaffold_form()
         peer_directory_ajax_loader = PeersDirectoryAjaxModelLoader(
-            'node_pubkey_string',
+            'pubkey_at_host',
             options=None,
             model=Peer,
-            placeholder='Select node pubkey')
+            placeholder='pubkey@host')
 
-        old = form_class.node_pubkey_string
         ajax_field = AjaxSelectField(loader=peer_directory_ajax_loader,
-                                     label='node_pubkey_string',
+                                     label='pubkey_at_host',
                                      allow_blank=True,
-                                     description=old.kwargs['description'])
+                                     description='pubkey@host')
 
         form_class.pubkey_at_host = ajax_field
         return form_class
