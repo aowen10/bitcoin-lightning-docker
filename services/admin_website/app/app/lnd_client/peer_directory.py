@@ -30,7 +30,7 @@ def build_directory():
     ]
 
     def peer_factory():
-        return Peer(None, None, '')
+        return Peer('', '', '')
 
     testnet_directory = defaultdict(peer_factory)
     for peer in testnet_peers:

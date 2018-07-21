@@ -2,13 +2,14 @@ from flask import flash, request, redirect, url_for
 from flask_admin import expose
 from flask_admin.babel import gettext
 from flask_admin.model.fields import AjaxSelectField
-from wtforms import StringField, Form
+from wtforms import Form
 
 from app.formatters.lnd import pub_key_formatter
 from app.lnd_client.admin.ajax_model_loaders import \
     PeersDirectoryAjaxModelLoader
 from app.lnd_client.admin.lnd_model_view import LNDModelView
-from app.lnd_client.grpc_generated.rpc_pb2 import LightningAddress, Peer
+from app.lnd_client.grpc_generated.rpc_pb2 import LightningAddress, Peer as LND_Peer
+from app.lnd_client.peer_directory import Peer
 
 
 class PeersModelView(LNDModelView):
@@ -24,18 +25,27 @@ class PeersModelView(LNDModelView):
         'pub_key': pub_key_formatter
     }
 
+    peer_directory_ajax_loader = PeersDirectoryAjaxModelLoader(
+        'pubkey_at_host',
+        options=None,
+        model=Peer,
+        placeholder='pubkey@host')
+
+    form_ajax_refs = {
+        'pubkey_at_host': peer_directory_ajax_loader
+    }
+
     def scaffold_form(self) -> Form:
         form_class = super(PeersModelView, self).scaffold_form()
-        peer_directory_ajax_loader = PeersDirectoryAjaxModelLoader(
-            'pubkey_at_host',
-            options=None,
-            model=Peer,
-            placeholder='pubkey@host')
 
-        ajax_field = AjaxSelectField(loader=peer_directory_ajax_loader,
+        ajax_field = AjaxSelectField(loader=self.peer_directory_ajax_loader,
                                      label='pubkey_at_host',
                                      allow_blank=True,
                                      description='pubkey@host')
+        #
+        # select_field = SelectField(label='pubkey_at_host',
+        #                            description='pubkey@host',
+        #                            choices=choices)
 
         form_class.pubkey_at_host = ajax_field
         return form_class
@@ -57,7 +67,7 @@ class PeersModelView(LNDModelView):
         new_peer = [p for p in self.ln.get_peers() if p.pub_key == pubkey][0]
         return new_peer
 
-    def delete_model(self, model: Peer):
+    def delete_model(self, model: LND_Peer):
         try:
             response = self.ln.disconnect_peer(pub_key=model.pub_key)
             return True
