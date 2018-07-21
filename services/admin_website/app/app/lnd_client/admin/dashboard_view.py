@@ -24,13 +24,13 @@ class LightningDashboardView(BaseView):
         if not peers:
             peers = {'No peers': ' '}
         else:
-            peers = MessageToDict(peers)['peers']
+            peers = [MessageToDict(p) for p in peers]
 
         channels = ln.get_channels()
         if not channels:
             channels = {'No channels': ' '}
         else:
-            channels = MessageToDict(channels)['channels']
+            channels = [MessageToDict(c) for c in channels]
 
         return self.render('admin/lnd/lnd_dashboard.html',
                            lnd_info=lnd_info,

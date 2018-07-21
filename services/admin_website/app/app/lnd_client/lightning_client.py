@@ -106,7 +106,7 @@ class LightningClient(object):
         response = self.lnd_client.NewAddress(request)
         return response.address
 
-    def get_peers(self) -> ln.ListPeersResponse:
+    def get_peers(self) -> List[ln.Peer]:
         request = ln.ListPeersRequest()
         response = self.lnd_client.ListPeers(request)
         return response.peers
