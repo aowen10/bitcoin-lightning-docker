@@ -1,8 +1,7 @@
-from flask import flash, request, redirect, url_for
+from flask import request, redirect, url_for
 from flask_admin import expose
-from flask_admin.babel import gettext
 from flask_admin.model.fields import AjaxSelectField
-from wtforms import Form
+from wtforms import Form, StringField
 
 from app.formatters.lnd import pub_key_formatter
 from app.lnd_client.admin.ajax_model_loaders import \
@@ -35,56 +34,57 @@ class PeersModelView(LNDModelView):
         'pubkey_at_host': peer_directory_ajax_loader
     }
 
-    def scaffold_form(self) -> Form:
+    def scaffold_form(self, quick_select=False) -> Form:
         form_class = super(PeersModelView, self).scaffold_form()
 
-        ajax_field = AjaxSelectField(loader=self.peer_directory_ajax_loader,
-                                     label='pubkey_at_host',
-                                     allow_blank=True,
-                                     description='pubkey@host')
-        #
-        # select_field = SelectField(label='pubkey_at_host',
-        #                            description='pubkey@host',
-        #                            choices=choices)
+        if quick_select:
+            ajax_field = AjaxSelectField(loader=self.peer_directory_ajax_loader,
+                                         label='pubkey_at_host',
+                                         allow_blank=True,
+                                         description='pubkey@host')
 
-        form_class.pubkey_at_host = ajax_field
+            form_class.pubkey_at_host = ajax_field
+        else:
+            form_class.pubkey_at_host = StringField(
+                label='pubkey_at_host',
+                description='pubkey@host')
         return form_class
 
     def create_model(self, form_data):
+
+        # This depends on whether the form is coming from the Create view or
+        # the list view
         if hasattr(form_data, 'data'):
             form_data = form_data.data
+
         if form_data.get('pubkey_at_host'):
             pubkey = form_data.get('pubkey_at_host').split('@')[0]
             host = form_data.get('pubkey_at_host').split('@')[1]
         else:
             pubkey = form_data.get('pubkey')
             host = form_data.get('host')
-        try:
-            self.ln.connect_peer(pubkey=pubkey, host=host)
-        except Exception as exc:
-            flash(gettext(exc._state.details), 'error')
-            return
+
+        response = self.ln.connect_peer(pubkey=pubkey, host=host)
+        if response is False:
+            return False
+
         new_peer = [p for p in self.ln.get_peers() if p.pub_key == pubkey][0]
         return new_peer
 
     def delete_model(self, model: LND_Peer):
-        try:
-            response = self.ln.disconnect_peer(pub_key=model.pub_key)
+        response = self.ln.disconnect_peer(pub_key=model.pub_key)
+        if response is not False:
             return True
-        except Exception as exc:
-            if hasattr(exc, '_state'):
-                flash(gettext(exc._state.details), 'error')
-            else:
-                flash(gettext(str(exc)))
-            return False
+        return False
 
     @expose('/', methods=('GET', 'POST'))
     def index_view(self):
+
         if request.method == 'POST':
             self.create_model(request.form.copy())
             return redirect(url_for('peer.index_view'))
 
-        FormClass = self.scaffold_form()
-
+        FormClass = self.scaffold_form(quick_select=True)
         self._template_args['add_peer_form'] = FormClass()
+
         return super(PeersModelView, self).index_view()

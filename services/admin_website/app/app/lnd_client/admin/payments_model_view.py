@@ -1,7 +1,4 @@
-import codecs
-
-from flask import flash
-from flask_admin.babel import gettext
+from wtforms import Form
 
 from app.formatters.common import satoshi_formatter
 from app.formatters.lnd import path_formatter
@@ -25,24 +22,16 @@ class PaymentsModelView(LNDModelView):
         form_class = super(PaymentsModelView, self).scaffold_form()
         return form_class
 
-    def create_model(self, form):
+    def create_model(self, form: Form):
         data = form.data
         data = {k: v for k, v in data.items() if data[k]}
-        try:
-            response = self.ln.send_payment_sync(**data)
-        except Exception as exc:
-            if hasattr(exc, '_state'):
-                flash(gettext(exc._state.details), 'error')
-            else:
-                flash(gettext(str(exc)))
+
+        response = self.ln.send_payment_sync(**data)
+        if response is False:
             return False
 
-        if response.payment_error:
-            flash(gettext(str(response.payment_error)))
-            return False
-        else:
-            decoded_pay_req = self.ln.decode_payment_request(pay_req=data['payment_request'])
-            payments = self.ln.get_payments()
-            new_payment = [p for p in payments
-                           if p.payment_hash == decoded_pay_req.payment_hash ]
-            return new_payment[0]
+        decoded_pay_req = self.ln.decode_payment_request(pay_req=data['payment_request'])
+        payments = self.ln.get_payments()
+        new_payment = [p for p in payments
+                       if p.payment_hash == decoded_pay_req.payment_hash ]
+        return new_payment[0]
