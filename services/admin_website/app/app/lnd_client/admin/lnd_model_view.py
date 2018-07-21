@@ -16,9 +16,9 @@ wtforms_type_map = {
     4: IntegerField,  # uint64
     5: IntegerField,  # int32
     8: BooleanField,  # bool
-    9: StringField,   # string
+    9: StringField,  # string
     12: StringField,  # bytes
-    13: IntegerField, # uint32
+    13: IntegerField,  # uint32
 }
 
 
@@ -38,11 +38,13 @@ def grpc_error_handling(func):
         if hasattr(response, 'code') and response.code() == StatusCode.UNKNOWN:
             flash(gettext(response._state.details), 'error')
             return False
-        elif hasattr(response, 'payment_error'):
+        elif hasattr(response, 'payment_error') and response.payment_error:
             flash(gettext(str(response.payment_error)), 'error')
             return False
         return response
+
     return wrapper
+
 
 def decorate_all_methods(decorator):
     def apply_decorator(cls):
@@ -50,11 +52,14 @@ def decorate_all_methods(decorator):
             if inspect.isfunction(f):
                 setattr(cls, k, decorator(f))
         return cls
+
     return apply_decorator
+
 
 @decorate_all_methods(grpc_error_handling)
 class WrappedLightningClient(LightningClient):
     pass
+
 
 class LNDModelView(BaseModelView):
 
@@ -68,7 +73,8 @@ class LNDModelView(BaseModelView):
 
     @property
     def ln(self):
-        return WrappedLightningClient(rpc_uri=self.rpc_uri, peer_uri=self.peer_uri)
+        return WrappedLightningClient(rpc_uri=self.rpc_uri,
+                                      peer_uri=self.peer_uri)
 
     create_form_class = None
     get_query = None
@@ -90,8 +96,8 @@ class LNDModelView(BaseModelView):
     def get_pk_value(self, model):
         return getattr(model, self.primary_key)
 
-    def get_list(self, page=None, sort_field=None, sort_desc=None, search=None,
-                       filters=None, page_size=None):
+    def get_list(self, page=None, sort_field=None, sort_desc=False, search=None,
+                 filters=None, page_size=None):
 
         results = getattr(self.ln, self.get_query)()
 
@@ -114,6 +120,7 @@ class LNDModelView(BaseModelView):
     def scaffold_form(self):
         class NewForm(Form):
             pass
+
         if self.create_form_class is None:
             return NewForm
 
@@ -124,12 +131,15 @@ class LNDModelView(BaseModelView):
 
             field_type = field.type
 
-            if field_type == 11: # Todo: handle "message" type, which is a nested object
+            if field_type == 11:  # Todo: handle "message" type, which is a nested object
                 continue
 
             FormClass = wtforms_type_map[field_type]
-            description = self.swagger['definitions']['lnrpc' + self.create_form_class.__name__]['properties'][field.name]
-            description = description.get('title') or description.get('description')
+            description = self.swagger['definitions'][
+                'lnrpc' + self.create_form_class.__name__]['properties'][
+                field.name]
+            description = description.get('title') or description.get(
+                'description')
             if description:
                 description = description.replace('/ ', '')
             form_field = FormClass(field.name,
