@@ -13,7 +13,7 @@ class TransactionsModelView(LNDModelView):
     get_query = 'get_transactions'
     primary_key = 'tx_hash'
 
-    list_template = 'admin/transactions_list.html'
+    list_template = 'admin/lnd/transactions_list.html'
 
     column_formatters = {
         'tx_hash': tx_hash_formatter,

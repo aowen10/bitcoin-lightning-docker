@@ -35,7 +35,7 @@ class LightningDashboardView(BaseView):
         except Exception as exc:
             channels = {'Error': ' '.join([str(type(exc)), str(exc)])}
 
-        return self.render('admin/lnd_dashboard.html',
+        return self.render('admin/lnd/lnd_dashboard.html',
                            lnd_info=lnd_info,
                            peers=peers,
                            channels=channels)

@@ -37,7 +37,7 @@ class LNDModelView(BaseModelView):
     can_delete = False
     can_edit = False
 
-    list_template = 'admin/lnd_list.html'
+    list_template = 'admin/lnd/lnd_list.html'
 
     def get_one(self, record_id):
         record_count, records = self.get_list()

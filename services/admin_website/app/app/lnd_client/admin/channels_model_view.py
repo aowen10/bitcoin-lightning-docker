@@ -33,7 +33,7 @@ class ChannelsModelView(LNDModelView):
     form_ajax_refs = {
         'node_pubkey_string': peer_ajax_loader
     }
-    list_template = 'admin/channels_list.html'
+    list_template = 'admin/lnd/channels_list.html'
 
     column_formatters = {
         'remote_pubkey': pub_key_formatter,

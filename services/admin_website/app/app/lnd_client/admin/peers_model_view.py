@@ -20,7 +20,7 @@ class PeersModelView(LNDModelView):
     primary_key = 'pub_key'
 
     column_default_sort = 'pub_key'
-    list_template = 'admin/peers_list.html'
+    list_template = 'admin/lnd/peers_list.html'
     column_formatters = {
         'pub_key': pub_key_formatter
     }
