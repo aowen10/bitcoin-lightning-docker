@@ -1,7 +1,6 @@
 import functools
 import inspect
 import json
-import os
 
 from flask import flash
 from flask_admin.babel import gettext
@@ -9,6 +8,7 @@ from flask_admin.model import BaseModelView
 from grpc import StatusCode
 from wtforms import Form, StringField, IntegerField, BooleanField, validators
 
+from app.constants import LND_RPC_URI, LND_PEER_URI
 from app.lnd_client.lightning_client import LightningClient
 
 wtforms_type_map = {
@@ -65,16 +65,14 @@ class LNDModelView(BaseModelView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.rpc_uri = os.environ.get('LND_RPC_URI', '127.0.0.1:10009')
-        self.peer_uri = os.environ.get('LND_PEER_URI', '127.0.0.1:9735')
 
     with open('rpc.swagger.json', 'r') as swagger_file:
         swagger = json.load(swagger_file)
 
     @property
     def ln(self):
-        return WrappedLightningClient(rpc_uri=self.rpc_uri,
-                                      peer_uri=self.peer_uri)
+        return WrappedLightningClient(rpc_uri=LND_RPC_URI,
+                                      peer_uri=LND_PEER_URI)
 
     create_form_class = None
     get_query = None

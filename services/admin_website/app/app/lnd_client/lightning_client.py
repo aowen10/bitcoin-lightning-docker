@@ -15,16 +15,17 @@ import app.lnd_client.grpc_generated.rpc_pb2_grpc as lnrpc
 # Due to updated ECDSA generated tls.cert we need to let gprc know that
 # we need to use that cipher suite otherwise there will be a handshake
 # error when we communicate with the lnd rpc server.
+from app.constants import LND_AUTH_DATA_PATH
+
 os.environ["GRPC_SSL_CIPHER_SUITES"] = 'HIGH+ECDSA'
 
 
 class LightningClient(object):
-    def __init__(self, rpc_uri: str, peer_uri: str, name: str = None):
-        self.name = name
+    def __init__(self, rpc_uri: str, peer_uri: str):
         self.peer_uri = peer_uri
 
-        if os.environ.get('LND_AUTH_DATA_PATH'):
-            path = os.environ.get('LND_AUTH_DATA_PATH')
+        if LND_AUTH_DATA_PATH != 'default':
+            path = LND_AUTH_DATA_PATH
         elif platform == "linux" or platform == "linux2":
             path = '~/.lnd/'
         elif platform == "darwin":
@@ -33,20 +34,12 @@ class LightningClient(object):
             raise Exception(f"What's the {platform} path for the lnd tls cert?")
         self.main_lnd_path = os.path.expanduser(path)
 
-        if name is None:
-            self.data_path = self.main_lnd_path
-        else:
-            data_path = os.path.expanduser(f'~/go/dev/{name}/data')
-            if not os.path.exists(data_path):
-                raise Exception(f'Invalid path {data_path}')
-            self.data_path = data_path
-
         lnd_tls_cert_path = os.path.join(self.main_lnd_path, 'tls.cert')
         self.lnd_tls_cert = open(lnd_tls_cert_path, 'rb').read()
 
         cert_credentials = grpc.ssl_channel_credentials(self.lnd_tls_cert)
 
-        admin_macaroon_path = os.path.join(self.data_path, 'admin.macaroon')
+        admin_macaroon_path = os.path.join(self.main_lnd_path, 'admin.macaroon')
         with open(admin_macaroon_path, 'rb') as f:
             macaroon_bytes = f.read()
             self.macaroon = codecs.encode(macaroon_bytes, 'hex')

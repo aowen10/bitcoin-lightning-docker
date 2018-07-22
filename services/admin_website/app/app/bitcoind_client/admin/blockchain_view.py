@@ -3,8 +3,7 @@ import os
 from flask_admin import expose, BaseView
 
 from app.bitcoind_client.bitcoind_client import BitcoinClient
-from app.constants import DEFAULT_NETWORK
-
+from app.constants import NETWORK
 
 
 class BlockchainView(BaseView):
@@ -32,6 +31,6 @@ class BlockchainView(BaseView):
                            blockchain_info=blockchain_info,
                            transaction_stats=transaction_stats,
                            block_stats=block_stats,
-                           network=os.environ.get('NETWORK', DEFAULT_NETWORK),
+                           network=NETWORK,
                            )
 

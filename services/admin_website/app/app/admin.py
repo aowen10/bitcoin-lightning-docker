@@ -1,8 +1,3 @@
-import os
-import random
-import string
-
-from bitcoin.core import CBlock
 from flask import Flask, redirect
 from flask_admin import Admin
 
@@ -14,6 +9,7 @@ from app.bitcoind_client.admin.transaction_view import TransactionView
 from app.bitcoind_client.admin.wallet_view import WalletView
 from app.bitcoind_client.models.blocks import Blocks
 from app.bitcoind_client.models.mempool_entries import MempoolEntries
+from app.constants import FLASK_SECRET_KEY
 from app.lnd_client.admin.channels_model_view import ChannelsModelView
 from app.lnd_client.admin.dashboard_view import LightningDashboardView
 from app.lnd_client.admin.invoices_model_view import InvoicesModelView
@@ -32,17 +28,14 @@ from app.lnd_client.grpc_generated.rpc_pb2 import (
 def create_app():
     app = Flask(__name__)
     app.debug = True
+    app.config['SECRET_KEY'] = FLASK_SECRET_KEY
+
     admin = Admin(app=app,
                   name='Bitcoin/LN',
                   template_mode='bootstrap3',
                   )
-    app.config['FLASK_ADMIN_FLUID_LAYOUT'] = True
-    secret_key = os.environ.get('FLASK_SECRET_KEY')
-    if secret_key is None:
-        secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
-        os.environ['FLASK_SECRET_KEY'] = secret_key
-    app.config['SECRET_KEY'] = secret_key
 
+    app.config['FLASK_ADMIN_FLUID_LAYOUT'] = True
 
     @app.route('/')
     def index():
@@ -60,14 +53,13 @@ def create_app():
                                    name='Blocks',
                                    category='Bitcoin'))
 
-
     admin.add_view(TransactionView(name='Transaction',
                                    endpoint='bitcoin-transaction',
                                    category='Bitcoin'))
 
     admin.add_view(MempoolEntriesModelView(MempoolEntries,
-                                   name='Mempool Entries',
-                                   category='Bitcoin'))
+                                           name='Mempool Entries',
+                                           category='Bitcoin'))
 
     admin.add_view(LightningDashboardView(name='Dashboard',
                                           endpoint='lightning',
@@ -82,8 +74,8 @@ def create_app():
                                   category='LND'))
 
     admin.add_view(ChannelsModelView(Channel,
-                                    name='Channels',
-                                    category='LND'))
+                                     name='Channels',
+                                     category='LND'))
 
     admin.add_view(InvoicesModelView(Invoice,
                                      name='Invoices',
@@ -94,6 +86,7 @@ def create_app():
                                      category='LND'))
 
     return app
+
 
 if __name__ == '__main__':
     app = create_app()

@@ -1,6 +1,6 @@
 from collections import namedtuple, defaultdict
 
-import os
+from app.constants import NETWORK
 
 Peer = namedtuple('Peer', ['pub_key', 'address', 'name', 'network'])
 
@@ -43,13 +43,13 @@ def build_directory():
     ]
 
     def peer_factory():
-        return Peer('', '', '')
+        return Peer('', '', '', '')
 
     testnet_directory = defaultdict(peer_factory)
     for peer in testnet_peers:
         testnet_directory[peer.pub_key] = peer
 
-    if os.environ.get('NETWORK', 'testnet'):
+    if NETWORK == 'testnet':
         return testnet_directory
     else:
         return []

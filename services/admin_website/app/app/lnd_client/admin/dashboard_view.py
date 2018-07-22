@@ -1,17 +1,14 @@
-import os
-
 from flask_admin import BaseView, expose
 from google.protobuf.json_format import MessageToDict
 
+from app.constants import LND_RPC_URI, LND_PEER_URI
 from app.lnd_client.lightning_client import LightningClient
 
 
 class LightningDashboardView(BaseView):
     @expose('/')
     def index(self):
-        rpc_uri = os.environ.get('LND_RPC_URI', '127.0.0.1:10009')
-        peer_uri = os.environ.get('LND_PEER_URI', '127.0.0.1:9735')
-        ln = LightningClient(rpc_uri=rpc_uri, peer_uri=peer_uri)
+        ln = LightningClient(rpc_uri=LND_RPC_URI, peer_uri=LND_PEER_URI)
 
         lnd_info = ln.get_info()
         if lnd_info is False:

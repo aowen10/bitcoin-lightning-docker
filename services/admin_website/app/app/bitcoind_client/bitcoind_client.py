@@ -6,12 +6,12 @@ import bitcoin.rpc
 from bitcoin.rpc import JSONRPCError
 from markupsafe import Markup
 
-from app.constants import DEFAULT_NETWORK, TESTNET_FAUCET
+from app.constants import NETWORK
 
 
 class BitcoinClient(object):
     def __init__(self):
-        self.network = os.environ.get('NETWORK', DEFAULT_NETWORK)
+        self.network = NETWORK
         bitcoin.SelectParams(self.network)
 
     @property
