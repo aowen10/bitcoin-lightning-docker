@@ -1,7 +1,6 @@
-import codecs
-
-from flask import flash
-from flask_admin.babel import gettext
+from flask import request, redirect, url_for
+from flask_admin import expose
+from wtforms import Form
 
 from app.formatters.common import satoshi_formatter
 from app.formatters.lnd import path_formatter
@@ -15,6 +14,8 @@ class PaymentsModelView(LNDModelView):
     get_query = 'get_payments'
     primary_key = 'payment_hash'
 
+    list_template = 'admin/lnd/payments_list.html'
+
     column_formatters = {
         'path': path_formatter,
         'value': satoshi_formatter,
@@ -25,24 +26,35 @@ class PaymentsModelView(LNDModelView):
         form_class = super(PaymentsModelView, self).scaffold_form()
         return form_class
 
-    def create_model(self, form):
-        data = form.data
-        data = {k: v for k, v in data.items() if data[k]}
-        try:
-            response = self.ln.send_payment_sync(**data)
-        except Exception as exc:
-            if hasattr(exc, '_state'):
-                flash(gettext(exc._state.details), 'error')
-            else:
-                flash(gettext(str(exc)))
+    def create_model(self, form_data: Form):
+
+        # This depends on whether the form is coming from the Create view or
+        # the list view
+        if hasattr(form_data, 'data'):
+            form_data = form_data.data
+
+        data = {k: v for k, v in form_data.items() if form_data[k]}
+
+        response = self.ln.send_payment_sync(**data)
+        if response is False:
             return False
 
-        if response.payment_error:
-            flash(gettext(str(response.payment_error)))
-            return False
-        else:
-            decoded_pay_req = self.ln.decode_payment_request(pay_req=data['payment_request'])
-            payments = self.ln.get_payments()
-            new_payment = [p for p in payments
-                           if p.payment_hash == decoded_pay_req.payment_hash ]
-            return new_payment[0]
+        decoded_pay_req = self.ln.decode_payment_request(pay_req=data['payment_request'])
+        payments = self.ln.get_payments()
+        new_payment = [p for p in payments
+                       if p.payment_hash == decoded_pay_req.payment_hash ]
+        return new_payment[0]
+
+
+
+    @expose('/', methods=('GET', 'POST'))
+    def index_view(self):
+
+        if request.method == 'POST':
+            self.create_model(request.form.copy())
+            return redirect(url_for('payment.index_view'))
+
+        FormClass = self.scaffold_form()
+        self._template_args['send_payment_form'] = FormClass()
+
+        return super(PaymentsModelView, self).index_view()

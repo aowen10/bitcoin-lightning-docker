@@ -1,11 +1,8 @@
 import codecs
 
-from flask import flash
 from flask_admin import expose
-from flask_admin.babel import gettext
 from flask_admin.model.fields import AjaxSelectField
 from google.protobuf.json_format import MessageToDict
-from grpc import StatusCode
 
 from app.formatters.common import satoshi_formatter
 from app.formatters.lnd import channel_point_formatter, pub_key_formatter
@@ -33,7 +30,7 @@ class ChannelsModelView(LNDModelView):
     form_ajax_refs = {
         'node_pubkey_string': peer_ajax_loader
     }
-    list_template = 'admin/channels_list.html'
+    list_template = 'admin/lnd/channels_list.html'
 
     column_formatters = {
         'remote_pubkey': pub_key_formatter,
@@ -67,24 +64,15 @@ class ChannelsModelView(LNDModelView):
     def create_model(self, form):
         data = form.data
         data['node_pubkey_string'] = data['node_pubkey_string'].pub_key
-        try:
-            response = self.ln.open_channel_sync(**data)
-        except Exception as exc:
-            if hasattr(exc, '_state'):
-                flash(gettext(exc._state.details), 'error')
-            else:
-                flash(gettext(str(exc)))
+        response = self.ln.open_channel_sync(**data)
+        if response is False:
             return False
 
-        if hasattr(response, 'code') and response.code() == StatusCode.UNKNOWN:
-            flash(gettext(response._state.details), 'error')
-            return False
-        else:
-            txid = codecs.decode(response.funding_txid_bytes, 'hex')
-            outpoint = ':'.join([txid, str(response.output_index)])
-            new_channel = [c for c in self.ln.get_channels()
-                           if c.channel_point == outpoint][0]
-            return new_channel
+        txid = codecs.decode(response.funding_txid_bytes, 'hex')
+        outpoint = ':'.join([txid, str(response.output_index)])
+        new_channel = [c for c in self.ln.get_channels()
+                       if c.channel_point == outpoint][0]
+        return new_channel
 
     @expose('/')
     def index_view(self):
