@@ -97,9 +97,12 @@ class LNDModelView(BaseModelView):
     def get_list(self, page=None, sort_field=None, sort_desc=False, search=None,
                  filters=None, page_size=None):
 
+
         results = getattr(self.ln, self.get_query)()
 
         sort_field = sort_field or self.column_default_sort
+        if isinstance(sort_field, tuple):
+            sort_field, sort_desc = sort_field
         if sort_field is not None:
             results.sort(key=lambda x: getattr(x, sort_field),
                          reverse=sort_desc)
@@ -157,4 +160,9 @@ class LNDModelView(BaseModelView):
 
     def scaffold_sortable_columns(self):
         columns = [field.name for field in self.model.DESCRIPTOR.fields]
+        self.column_descriptions = {
+            c: self.swagger['definitions'][
+                'lnrpc' + self.model.__name__]['properties'][c].get('title', '').replace('/ ', '')
+            for c in columns
+        }
         return columns
