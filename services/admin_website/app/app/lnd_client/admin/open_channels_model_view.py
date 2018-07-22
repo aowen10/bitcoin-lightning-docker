@@ -14,7 +14,7 @@ from app.lnd_client.grpc_generated.rpc_pb2 import (
 )
 
 
-class ChannelsModelView(LNDModelView):
+class OpenChannelsModelView(LNDModelView):
     peer_ajax_loader = PeersAjaxModelLoader('node_pubkey_string',
                                             options=None,
                                             model=Peer,
@@ -47,7 +47,7 @@ class ChannelsModelView(LNDModelView):
     }
 
     def scaffold_form(self):
-        form_class = super(ChannelsModelView, self).scaffold_form()
+        form_class = super(OpenChannelsModelView, self).scaffold_form()
         old = form_class.node_pubkey_string
         ajax_field = AjaxSelectField(loader=self.peer_ajax_loader,
                                      label='node_pubkey_string',
@@ -78,4 +78,4 @@ class ChannelsModelView(LNDModelView):
     def index_view(self):
         balance = self.ln.get_channel_balance()
         self._template_args['balance'] = MessageToDict(balance)
-        return super(ChannelsModelView, self).index_view()
+        return super(OpenChannelsModelView, self).index_view()

@@ -10,7 +10,7 @@ from app.bitcoind_client.admin.wallet_view import WalletView
 from app.bitcoind_client.models.blocks import Blocks
 from app.bitcoind_client.models.mempool_entries import MempoolEntries
 from app.constants import FLASK_SECRET_KEY
-from app.lnd_client.admin.channels_model_view import ChannelsModelView
+from app.lnd_client.admin.open_channels_model_view import OpenChannelsModelView
 from app.lnd_client.admin.dashboard_view import LightningDashboardView
 from app.lnd_client.admin.invoices_model_view import InvoicesModelView
 from app.lnd_client.admin.payments_model_view import PaymentsModelView
@@ -73,8 +73,8 @@ def create_app():
                                   name='Peers',
                                   category='LND'))
 
-    admin.add_view(ChannelsModelView(Channel,
-                                     name='Channels',
+    admin.add_view(OpenChannelsModelView(Channel,
+                                     name='Open Channels',
                                      category='LND'))
 
     admin.add_view(InvoicesModelView(Invoice,
