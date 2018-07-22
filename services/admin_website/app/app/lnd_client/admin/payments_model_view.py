@@ -2,7 +2,8 @@ from flask import request, redirect, url_for
 from flask_admin import expose
 from wtforms import Form
 
-from app.formatters.common import satoshi_formatter
+from app.formatters.common import satoshi_formatter, format_timestamp, \
+    format_hash
 from app.formatters.lnd import path_formatter
 from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import SendRequest
@@ -16,11 +17,19 @@ class PaymentsModelView(LNDModelView):
 
     list_template = 'admin/lnd/payments_list.html'
 
+    column_list = ['creation_date', 'value', 'fee', 'payment_hash',
+                   'payment_preimage', 'path']
+
     column_formatters = {
-        'path': path_formatter,
+        'creation_date': format_timestamp,
         'value': satoshi_formatter,
         'fee': satoshi_formatter,
+        'payment_hash': format_hash,
+        'payment_preimage': format_hash,
+        'path': path_formatter,
     }
+
+    column_default_sort = ('creation_date', True)
 
     def scaffold_form(self):
         form_class = super(PaymentsModelView, self).scaffold_form()
@@ -39,13 +48,12 @@ class PaymentsModelView(LNDModelView):
         if response is False:
             return False
 
-        decoded_pay_req = self.ln.decode_payment_request(pay_req=data['payment_request'])
+        decoded_pay_req = self.ln.decode_payment_request(
+            pay_req=data['payment_request'])
         payments = self.ln.get_payments()
         new_payment = [p for p in payments
-                       if p.payment_hash == decoded_pay_req.payment_hash ]
+                       if p.payment_hash == decoded_pay_req.payment_hash]
         return new_payment[0]
-
-
 
     @expose('/', methods=('GET', 'POST'))
     def index_view(self):
