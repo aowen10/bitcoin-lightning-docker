@@ -25,69 +25,76 @@ from app.lnd_client.grpc_generated.rpc_pb2 import (
 )
 
 
-def create_app():
-    app = Flask(__name__)
-    app.debug = True
-    app.config['SECRET_KEY'] = FLASK_SECRET_KEY
+class App(Flask):
+    def __init__(self):
+        super().__init__(__name__)
+        self.debug = True
+        self.config['SECRET_KEY'] = FLASK_SECRET_KEY
 
-    admin = Admin(app=app,
-                  name='Bitcoin/LN',
-                  template_mode='bootstrap3',
-                  )
+        @self.route('/')
+        def index():
+            return redirect('/admin')
 
-    app.config['FLASK_ADMIN_FLUID_LAYOUT'] = True
+        self.config['FLASK_ADMIN_FLUID_LAYOUT'] = True
 
-    @app.route('/')
-    def index():
-        return redirect('/admin')
+        self.admin = Admin(app=self,
+                           name='Bitcoin/LN',
+                           template_mode='bootstrap3',
+                           )
+        self.add_bitcoind_views()
+        self.add_lnd_views()
 
-    admin.add_view(WalletView(name='Wallet Info',
-                              endpoint='bitcoin',
-                              category='Bitcoin Wallet'))
+    def add_bitcoind_views(self):
+        self.admin.add_view(WalletView(name='Wallet Info',
+                                       endpoint='bitcoin',
+                                       category='Bitcoin'))
 
-    admin.add_view(BlockchainView(name='Blockchain',
-                                  endpoint='blockchain',
-                                  category='Bitcoin'))
-
-    admin.add_view(BlocksModelView(Blocks,
-                                   name='Blocks',
-                                   category='Bitcoin'))
-
-    admin.add_view(TransactionView(name='Transaction',
-                                   endpoint='bitcoin-transaction',
-                                   category='Bitcoin'))
-
-    admin.add_view(MempoolEntriesModelView(MempoolEntries,
-                                           name='Mempool Entries',
+        self.admin.add_view(BlockchainView(name='Blockchain',
+                                           endpoint='blockchain',
                                            category='Bitcoin'))
 
-    admin.add_view(LightningDashboardView(name='Dashboard',
-                                          endpoint='lightning',
-                                          category='LND'))
+        self.admin.add_view(BlocksModelView(Blocks,
+                                            name='Blocks',
+                                            category='Bitcoin'))
 
-    admin.add_view(TransactionsModelView(Transaction,
-                                         name='LND Transactions',
-                                         category='LND'))
+        self.admin.add_view(TransactionView(name='Transaction',
+                                            endpoint='bitcoin-transaction',
+                                            category='Bitcoin'))
 
-    admin.add_view(PeersModelView(Peer,
-                                  name='Peers',
-                                  category='LND'))
+        self.admin.add_view(MempoolEntriesModelView(MempoolEntries,
+                                                    name='Mempool Entries',
+                                                    category='Bitcoin'))
 
-    admin.add_view(OpenChannelsModelView(Channel,
-                                     name='Open Channels',
-                                     category='LND'))
+    def add_lnd_views(self):
+        self.admin.add_view(LightningDashboardView(name='Dashboard',
+                                                   endpoint='lightning',
+                                                   category='LND'))
 
-    admin.add_view(InvoicesModelView(Invoice,
-                                     name='Invoices',
-                                     category='LND'))
+        self.admin.add_view(TransactionsModelView(Transaction,
+                                                  name='LND Transactions',
+                                                  category='LND'))
 
-    admin.add_view(PaymentsModelView(Payment,
-                                     name='Payments',
-                                     category='LND'))
+        self.admin.add_view(PeersModelView(Peer,
+                                           name='Peers',
+                                           category='LND'))
 
-    return app
+        self.admin.add_view(OpenChannelsModelView(Channel,
+                                                  name='Pending Open Channels',
+                                                  category='LND'))
+
+        self.admin.add_view(OpenChannelsModelView(Channel,
+                                                  name='Open Channels',
+                                                  category='LND'))
+
+        self.admin.add_view(InvoicesModelView(Invoice,
+                                              name='Invoices',
+                                              category='LND'))
+
+        self.admin.add_view(PaymentsModelView(Payment,
+                                              name='Payments',
+                                              category='LND'))
 
 
 if __name__ == '__main__':
-    app = create_app()
+    app = App()
     app.run(port=5013)
