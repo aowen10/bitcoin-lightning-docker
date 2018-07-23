@@ -15,6 +15,7 @@ from app.lnd_client.admin.dashboard_view import LightningDashboardView
 from app.lnd_client.admin.invoices_model_view import InvoicesModelView
 from app.lnd_client.admin.payments_model_view import PaymentsModelView
 from app.lnd_client.admin.peers_model_view import PeersModelView
+from app.lnd_client.admin.pending_channels import PendingChannelsModelView
 from app.lnd_client.admin.transactions_model_view import TransactionsModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import (
     Channel,
@@ -23,6 +24,7 @@ from app.lnd_client.grpc_generated.rpc_pb2 import (
     Peer,
     Transaction
 )
+from app.lnd_client.models.pending_channel import PendingChannel
 
 
 class App(Flask):
@@ -78,8 +80,8 @@ class App(Flask):
                                            name='Peers',
                                            category='LND'))
 
-        self.admin.add_view(OpenChannelsModelView(Channel,
-                                                  name='Pending Open Channels',
+        self.admin.add_view(PendingChannelsModelView(PendingChannel,
+                                                  name='Pending Channels',
                                                   category='LND'))
 
         self.admin.add_view(OpenChannelsModelView(Channel,

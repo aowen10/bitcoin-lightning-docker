@@ -1,6 +1,6 @@
 from app.utilities import DefaultModel
 
 
-class Transactions(DefaultModel):
+class PendingChannel(DefaultModel):
     pass
 

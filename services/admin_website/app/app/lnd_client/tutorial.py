@@ -40,7 +40,7 @@ class LightningNetwork(object):
     def setup_channels(self):
         # Close existing channels
         for node in self.nodes:
-            channels = node.get_channels().channels
+            channels = node.list_channels().channels
             for channel in channels:
                 node.close_channel(channel_point=channel.channel_point)
 
@@ -76,7 +76,7 @@ class LightningNetwork(object):
             print(address)
             peers = user_client.get_peers()
             print(peers)
-            channels = user_client.get_channels()
+            channels = user_client.list_channels()
             print(channels)
 
 

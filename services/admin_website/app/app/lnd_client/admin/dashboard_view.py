@@ -23,7 +23,7 @@ class LightningDashboardView(BaseView):
         else:
             peers = [MessageToDict(p) for p in peers]
 
-        channels = ln.get_channels()
+        channels = ln.list_channels()
         if not channels:
             channels = {'No channels': ' '}
         else:

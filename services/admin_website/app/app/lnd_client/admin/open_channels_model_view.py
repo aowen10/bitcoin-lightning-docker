@@ -10,8 +10,8 @@ from app.lnd_client.admin.ajax_model_loaders import PeersAjaxModelLoader
 from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import (
     OpenChannelRequest,
-    Peer
-)
+    Peer,
+    Channel)
 
 
 class OpenChannelsModelView(LNDModelView):
@@ -22,7 +22,7 @@ class OpenChannelsModelView(LNDModelView):
 
     can_create = True
     create_form_class = OpenChannelRequest
-    get_query = 'get_channels'
+    get_query = 'list_channels'
     primary_key = 'chan_id'
 
     column_default_sort = 'chan_id'
@@ -68,11 +68,11 @@ class OpenChannelsModelView(LNDModelView):
         if response is False:
             return False
 
-        txid = codecs.decode(response.funding_txid_bytes, 'hex')
-        outpoint = ':'.join([txid, str(response.output_index)])
-        new_channel = [c for c in self.ln.get_channels()
-                       if c.channel_point == outpoint][0]
-        return new_channel
+        # txid = codecs.decode(response.funding_txid_bytes, 'hex')
+        # outpoint = ':'.join([txid, str(response.output_index)])
+        # new_channel = [c for c in self.ln.get_channels()
+        #                if c.channel_point == outpoint][0]
+        return Channel()
 
     @expose('/')
     def index_view(self):

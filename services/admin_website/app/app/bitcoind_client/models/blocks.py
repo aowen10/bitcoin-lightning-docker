@@ -1,4 +1,4 @@
-from app.bitcoind_client.models import DefaultModel
+from app.utilities import DefaultModel
 
 
 class Blocks(DefaultModel):
