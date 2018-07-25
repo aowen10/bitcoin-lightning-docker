@@ -135,6 +135,11 @@ class LightningClient(object):
         response = self.lnd_client.OpenChannelSync(request)
         return response
 
+    def close_channel(self, **kwargs):
+        request = ln.CloseChannelRequest(**kwargs)
+        for response in self.lnd_client.CloseChannel(request):
+            return response
+
     def create_invoice(self, **kwargs) -> ln.AddInvoiceResponse:
         request = ln.Invoice(**kwargs)
         return self.lnd_client.AddInvoice(request)
@@ -156,9 +161,4 @@ class LightningClient(object):
     def send_payment_sync(self, **kwargs) -> ln.SendResponse:
         request = ln.SendRequest(**kwargs)
         response = self.lnd_client.SendPaymentSync(request)
-        return response
-
-    def close_channel(self, channel_point: str):
-        request = ln.CloseChannelRequest(channel_point=channel_point)
-        response = self.lnd_client.CloseChannel(request)
         return response

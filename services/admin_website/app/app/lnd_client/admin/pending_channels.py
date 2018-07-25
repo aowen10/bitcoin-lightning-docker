@@ -3,12 +3,22 @@ from google.protobuf.json_format import MessageToDict
 from wtforms import Form
 
 from app.constants import LND_PEER_URI, LND_RPC_URI
+from app.formatters.common import satoshi_formatter
+from app.formatters.lnd import pub_key_formatter, tx_hash_formatter
 from app.lnd_client.admin.lnd_model_view import WrappedLightningClient
 from app.lnd_client.models.pending_channel import PendingChannel
 
 
 class PendingChannelsModelView(BaseModelView):
-
+    column_formatters = {
+        'remote_node_pub': pub_key_formatter,
+        'capacity': satoshi_formatter,
+        'closing_txid': tx_hash_formatter,
+        'limbo_balance': satoshi_formatter,
+        'local_balance': satoshi_formatter,
+        'commit_fee': satoshi_formatter,
+        'fee_per_kw': satoshi_formatter,
+    }
     @property
     def ln(self):
         return WrappedLightningClient(rpc_uri=LND_RPC_URI,
@@ -18,8 +28,9 @@ class PendingChannelsModelView(BaseModelView):
         pass
 
     def scaffold_list_columns(self):
-        return ['commit_fee', 'commit_weight', 'fee_per_kw', 'remote_node_pub',
-                'channel_point', 'capacity', 'local_balance', 'pending_type']
+        return ['pending_type', 'fee_per_kw', 'limbo_balance', 'commit_weight',
+                'remote_node_pub', 'local_balance', 'capacity', 'closing_txid',
+                'channel_point', 'commit_fee']
 
     def scaffold_sortable_columns(self):
         pass

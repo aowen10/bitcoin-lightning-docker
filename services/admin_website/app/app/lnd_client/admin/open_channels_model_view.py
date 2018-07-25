@@ -1,6 +1,6 @@
-import codecs
-
+from flask import flash
 from flask_admin import expose
+from flask_admin.babel import gettext
 from flask_admin.model.fields import AjaxSelectField
 from google.protobuf.json_format import MessageToDict
 
@@ -11,7 +11,7 @@ from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import (
     OpenChannelRequest,
     Peer,
-    Channel)
+    Channel, ChannelPoint)
 
 
 class OpenChannelsModelView(LNDModelView):
@@ -21,6 +21,7 @@ class OpenChannelsModelView(LNDModelView):
                                             placeholder='Select node pubkey')
 
     can_create = True
+    can_delete = True
     create_form_class = OpenChannelRequest
     get_query = 'list_channels'
     primary_key = 'chan_id'
@@ -60,6 +61,22 @@ class OpenChannelsModelView(LNDModelView):
         form_class.sat_per_byte.kwargs['default'] = 250
         form_class.min_htlc_msat.kwargs['default'] = 1
         return form_class
+
+    def delete_model(self, model: Channel):
+        txid, index = model.channel_point.split(':')
+        channel_point = ChannelPoint(funding_txid_str=txid,
+                                     output_index=int(index))
+        response = self.ln.close_channel(channel_point=channel_point)
+        if response is not False:
+            flash(gettext(str(MessageToDict(response))), 'info')
+            return True
+        else:
+            force_response = self.ln.close_channel(channel_point=channel_point,
+                                                   force=True)
+            if force_response is not False:
+                flash(gettext('Force close: ' + str(MessageToDict(force_response))), 'info')
+                return True
+        return False
 
     def create_model(self, form):
         data = form.data
