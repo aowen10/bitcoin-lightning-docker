@@ -58,7 +58,7 @@ exec lnd \
     --rpclisten="$RPC_LISTEN" \
     --restlisten="$REST_LISTEN" \
     --listen="$LISTEN" \
-    --tlsextradomain="lnd" \
+    --tlsextradomain="lnd-$NETWORK" \
     --noencryptwallet \
     --logdir="/data" \
     "--$CHAIN.active" \

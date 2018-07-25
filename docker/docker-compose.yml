@@ -93,6 +93,7 @@ services:
       - NETWORK=regtest
       - LND_RPC_URI=lnd-regtest:10011
       - LND_PEER_URI=lnd-regtest:9737
+      - LND_AUTH_DATA_PATH=default
       - FLASK_APP=app/main.py
       - FLASK_DEBUG=1
       - 'RUN=flask run --host=0.0.0.0 --port=80'
@@ -198,6 +199,7 @@ services:
       - NETWORK=testnet
       - LND_RPC_URI=lnd-testnet:10012
       - LND_PEER_URI=lnd-testnet:9736
+      - LND_AUTH_DATA_PATH=default
       - FLASK_APP=app/main.py
       - FLASK_DEBUG=1
       - 'RUN=flask run --host=0.0.0.0 --port=80'
@@ -207,4 +209,4 @@ services:
       - ${PWD}/lnd-testnet-data:/root/.lnd
       - ${PWD}/../services/admin_website/app/app:/app/app
     ports:
-     - "5002:80" # expose testnet admin website to localhost:5003
+     - "5002:80" # expose testnet admin website to localhost:5002
