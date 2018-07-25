@@ -4,7 +4,6 @@ from sys import platform
 from typing import List
 
 import grpc
-from google.protobuf.json_format import MessageToDict
 from grpc._plugin_wrapping import (
     _AuthMetadataPluginCallback,
     _AuthMetadataContext
@@ -57,7 +56,7 @@ class LightningClient(object):
         self.grpc_channel = grpc.secure_channel(rpc_uri,
                                                 self.credentials
 
-                                                  )
+                                                )
         self.lnd_client = lnrpc.LightningStub(self.grpc_channel)
 
     def get_info(self) -> ln.GetInfoResponse:
@@ -124,13 +123,15 @@ class LightningClient(object):
         return response
 
     def open_channel(self, **kwargs):
-        kwargs['node_pubkey'] = codecs.decode(kwargs['node_pubkey_string'], 'hex')
+        kwargs['node_pubkey'] = codecs.decode(kwargs['node_pubkey_string'],
+                                              'hex')
         request = ln.OpenChannelRequest(**kwargs)
         response = self.lnd_client.OpenChannel(request)
         return response
 
     def open_channel_sync(self, **kwargs):
-        kwargs['node_pubkey'] = codecs.decode(kwargs['node_pubkey_string'], 'hex')
+        kwargs['node_pubkey'] = codecs.decode(kwargs['node_pubkey_string'],
+                                              'hex')
         request = ln.OpenChannelRequest(**kwargs)
         response = self.lnd_client.OpenChannelSync(request)
         return response
