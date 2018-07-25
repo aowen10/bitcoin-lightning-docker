@@ -18,7 +18,8 @@ def format_hash(view, context, model, name):
     return hash[-20:]
 
 
-def format_amount(amount):
+def format_integer(amount):
+    amount = int(amount)
     if amount:
         currency_string = "{0:,d}".format(amount)
         if currency_string.startswith('-'):
@@ -31,4 +32,6 @@ def format_amount(amount):
 
 def satoshi_formatter(view, context, model, name):
     amount = getattr(model, name)
-    return format_amount(amount)
+    if amount is not None:
+        return format_integer(amount)
+    return None

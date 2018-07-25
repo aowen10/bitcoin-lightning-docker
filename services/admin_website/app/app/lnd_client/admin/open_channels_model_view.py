@@ -1,6 +1,6 @@
-import codecs
-
+from flask import flash
 from flask_admin import expose
+from flask_admin.babel import gettext
 from flask_admin.model.fields import AjaxSelectField
 from google.protobuf.json_format import MessageToDict
 
@@ -10,19 +10,20 @@ from app.lnd_client.admin.ajax_model_loaders import PeersAjaxModelLoader
 from app.lnd_client.admin.lnd_model_view import LNDModelView
 from app.lnd_client.grpc_generated.rpc_pb2 import (
     OpenChannelRequest,
-    Peer
-)
+    Peer,
+    Channel, ChannelPoint)
 
 
-class ChannelsModelView(LNDModelView):
+class OpenChannelsModelView(LNDModelView):
     peer_ajax_loader = PeersAjaxModelLoader('node_pubkey_string',
                                             options=None,
                                             model=Peer,
                                             placeholder='Select node pubkey')
 
     can_create = True
+    can_delete = True
     create_form_class = OpenChannelRequest
-    get_query = 'get_channels'
+    get_query = 'list_channels'
     primary_key = 'chan_id'
 
     column_default_sort = 'chan_id'
@@ -47,7 +48,7 @@ class ChannelsModelView(LNDModelView):
     }
 
     def scaffold_form(self):
-        form_class = super(ChannelsModelView, self).scaffold_form()
+        form_class = super(OpenChannelsModelView, self).scaffold_form()
         old = form_class.node_pubkey_string
         ajax_field = AjaxSelectField(loader=self.peer_ajax_loader,
                                      label='node_pubkey_string',
@@ -61,6 +62,22 @@ class ChannelsModelView(LNDModelView):
         form_class.min_htlc_msat.kwargs['default'] = 1
         return form_class
 
+    def delete_model(self, model: Channel):
+        txid, index = model.channel_point.split(':')
+        channel_point = ChannelPoint(funding_txid_str=txid,
+                                     output_index=int(index))
+        response = self.ln.close_channel(channel_point=channel_point)
+        if response is not False:
+            flash(gettext(str(MessageToDict(response))), 'info')
+            return True
+        else:
+            force_response = self.ln.close_channel(channel_point=channel_point,
+                                                   force=True)
+            if force_response is not False:
+                flash(gettext('Force close: ' + str(MessageToDict(force_response))), 'info')
+                return True
+        return False
+
     def create_model(self, form):
         data = form.data
         data['node_pubkey_string'] = data['node_pubkey_string'].pub_key
@@ -68,14 +85,14 @@ class ChannelsModelView(LNDModelView):
         if response is False:
             return False
 
-        txid = codecs.decode(response.funding_txid_bytes, 'hex')
-        outpoint = ':'.join([txid, str(response.output_index)])
-        new_channel = [c for c in self.ln.get_channels()
-                       if c.channel_point == outpoint][0]
-        return new_channel
+        # txid = codecs.decode(response.funding_txid_bytes, 'hex')
+        # outpoint = ':'.join([txid, str(response.output_index)])
+        # new_channel = [c for c in self.ln.get_channels()
+        #                if c.channel_point == outpoint][0]
+        return Channel()
 
     @expose('/')
     def index_view(self):
         balance = self.ln.get_channel_balance()
         self._template_args['balance'] = MessageToDict(balance)
-        return super(ChannelsModelView, self).index_view()
+        return super(OpenChannelsModelView, self).index_view()

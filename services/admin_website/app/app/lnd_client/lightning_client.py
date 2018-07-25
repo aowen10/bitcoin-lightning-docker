@@ -4,6 +4,7 @@ from sys import platform
 from typing import List
 
 import grpc
+from google.protobuf.json_format import MessageToDict
 from grpc._plugin_wrapping import (
     _AuthMetadataPluginCallback,
     _AuthMetadataContext
@@ -81,8 +82,15 @@ class LightningClient(object):
         response = self.lnd_client.ChannelBalance(request)
         return response
 
-    def get_channels(self) -> List[ln.Channel]:
-        return self.lnd_client.ListChannels(ln.ListChannelsRequest()).channels
+    def list_channels(self) -> List[ln.Channel]:
+        request = ln.ListChannelsRequest()
+        response = self.lnd_client.ListChannels(request)
+        return response.channels
+
+    def list_pending_channels(self) -> ln.PendingChannelsResponse:
+        request = ln.PendingChannelsRequest()
+        response = self.lnd_client.PendingChannels(request)
+        return response
 
     def get_invoices(self, pending_only: bool = False) -> List[ln.Invoice]:
         request = ln.ListInvoiceRequest(pending_only=pending_only)
@@ -127,6 +135,11 @@ class LightningClient(object):
         response = self.lnd_client.OpenChannelSync(request)
         return response
 
+    def close_channel(self, **kwargs):
+        request = ln.CloseChannelRequest(**kwargs)
+        for response in self.lnd_client.CloseChannel(request):
+            return response
+
     def create_invoice(self, **kwargs) -> ln.AddInvoiceResponse:
         request = ln.Invoice(**kwargs)
         return self.lnd_client.AddInvoice(request)
@@ -148,9 +161,4 @@ class LightningClient(object):
     def send_payment_sync(self, **kwargs) -> ln.SendResponse:
         request = ln.SendRequest(**kwargs)
         response = self.lnd_client.SendPaymentSync(request)
-        return response
-
-    def close_channel(self, channel_point: str):
-        request = ln.CloseChannelRequest(channel_point=channel_point)
-        response = self.lnd_client.CloseChannel(request)
         return response
