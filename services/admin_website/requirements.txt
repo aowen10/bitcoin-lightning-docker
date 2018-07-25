@@ -1,5 +1,0 @@
-flask-admin
-googleapis-common-protos
-grpcio
-grpcio-tools
-python-bitcoinlib
