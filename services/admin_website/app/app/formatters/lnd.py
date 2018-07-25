@@ -38,6 +38,8 @@ def get_txid_link(txid: str):
 
 def tx_hash_formatter(view, context, model, name):
     tx_hash = getattr(model, name)
+    if tx_hash is None:
+        return None
     link = get_txid_link(tx_hash)
     return Markup(link)
 
