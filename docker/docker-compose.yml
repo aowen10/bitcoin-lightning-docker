@@ -207,4 +207,4 @@ services:
       - ${PWD}/lnd-testnet-data:/root/.lnd
       - ${PWD}/../services/admin_website/app/app:/app/app
     ports:
-     - "5002:80" # expose testnet admin website to localhost:5003
+     - "5002:80" # expose testnet admin website to localhost:5002
