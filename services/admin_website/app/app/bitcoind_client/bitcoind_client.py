@@ -4,7 +4,6 @@ import os
 
 import bitcoin.rpc
 from bitcoin.rpc import JSONRPCError
-from markupsafe import Markup
 
 from app.constants import NETWORK
 
@@ -141,7 +140,4 @@ class BitcoinClient(object):
         address_types = ['bech32', 'p2sh-segwit', 'legacy']
         new_addresses = {t: self.call('getnewaddress', '', t) for t in
                          address_types}
-        if chain == 'test':
-            new_addresses['Get testnet coins'] = Markup(
-                f'<a target="_blank" href="{TESTNET_FAUCET}">{TESTNET_FAUCET}</a>')
         return new_addresses
