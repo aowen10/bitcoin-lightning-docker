@@ -9,10 +9,10 @@ services:
     image: bitcoind
     container_name: bitcoind-regtest
     build:
-      context: ${PWD}/docker/bitcoind/
-      dockerfile: ${PWD}/docker/bitcoind/Dockerfile
+      context: ./docker/bitcoind/
+      dockerfile: Dockerfile
     volumes:
-      - ${PWD}/data/bitcoind-regtest-data:/home/bitcoin/.bitcoin
+      - ./data/bitcoind-regtest-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
       -conf=/bitcoind-regtest.conf
@@ -38,10 +38,10 @@ services:
     image: lnd
     container_name: lnd-regtest
     build:
-      context: ${PWD}/docker/lnd/
-      dockerfile: ${PWD}/docker/lnd/Dockerfile
-    volumes:
-      - ${PWD}/data/lnd-regtest-data:/root/.lnd
+      context: ./docker/lnd/
+      dockerfile: Dockerfile
+  #  volumes:
+ #     - ./data/lnd-regtest-data:/root/.lnd
     environment:
       - RPCHOST=bitcoind-regtest
       - RPCUSER=user
@@ -75,10 +75,10 @@ services:
     image: bitcoind
     container_name: bitcoind-testnet
     build:
-      context: ${PWD}/docker/bitcoind/
-      dockerfile: ${PWD}/docker/bitcoind/Dockerfile
+      context: ./docker/bitcoind/
+      dockerfile: Dockerfile
     volumes:
-      - ${PWD}/data/bitcoind-testnet-data:/home/bitcoin/.bitcoin
+      - ./data/bitcoind-testnet-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
       -conf=/bitcoind-testnet.conf
@@ -105,10 +105,10 @@ services:
     image: lnd
     container_name: lnd-testnet
     build:
-      context: ${PWD}/docker/lnd/
-      dockerfile: ${PWD}/docker/lnd/Dockerfile
-    volumes:
-      - ${PWD}/data/lnd-testnet-data:/root/.lnd
+      context: ./docker/lnd/
+      dockerfile: Dockerfile
+   # volumes:
+  #    - ./data/lnd-testnet-data:/root/.lnd
     environment:
       - RPCHOST=bitcoind-testnet
       - RPCUSER=user
