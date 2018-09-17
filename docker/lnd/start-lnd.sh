@@ -40,9 +40,11 @@ set_default() {
 
 # Set default variables if needed.
 RPCHOST=$(set_default "$RPCHOST" "127.0.0.1")
-ZMQ_PATH=$(set_default "$ZMQ_PATH" "tcp://127.0.0.1:28332")
+ZMQ_PUB_RAW_BLOCK=$(set_default "$ZMQ_PUB_RAW_BLOCK" "tcp://127.0.0.1:28333")
+ZMQ_PUB_RAW_TX=$(set_default "$ZMQ_PUB_RAW_TX" "tcp://127.0.0.1:28333")
 RPCUSER=$(set_default "$RPCUSER" "devuser")
 RPCPASS=$(set_default "$RPCPASS" "devpass")
+RPCAUTH=$(set_default "$RPCAUTH" "user:d4a9dfedc252bb9a40b62a541822f26$45ac142a1c62a5856671531684f95a525556156793f1a696d25ed64a4609233b")
 DEBUG=$(set_default "$DEBUG" "debug")
 NETWORK=$(set_default "$NETWORK" "simnet")
 CHAIN=$(set_default "$CHAIN" "bitcoin")
@@ -64,9 +66,11 @@ exec lnd \
     "--$CHAIN.active" \
     "--$CHAIN.$NETWORK" \
     "--$CHAIN.node"="$BITCOIN_NODE" \
-    "--$BACKEND.zmqpath"="$ZMQ_PATH" \
+    "--$BACKEND.zmqpubrawblock"="$ZMQ_PUB_RAW_BLOCK" \
+    "--$BACKEND.zmqpubrawtx"="$ZMQ_PUB_RAW_TX" \
     "--$BACKEND.rpchost"="$RPCHOST" \
     "--$BACKEND.rpcuser"="$RPCUSER" \
     "--$BACKEND.rpcpass"="$RPCPASS" \
+    "--$BACKEND.rpcauth"="$RPCAUTH" \
     --debuglevel="$DEBUG" \
     "$@"
