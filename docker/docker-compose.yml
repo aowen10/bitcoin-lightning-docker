@@ -10,9 +10,9 @@ services:
     container_name: bitcoind-regtest
     build:
       context: ../services/admin_website/app/app/bitcoind_client
-      dockerfile: ${PWD}/bitcoind/Dockerfile
+      dockerfile: ./bitcoind/Dockerfile
     volumes:
-      - ${PWD}/bitcoind-regtest-data:/home/bitcoin/.bitcoin
+      - ./bitcoind-regtest-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
       -conf=/bitcoind-regtest.conf
@@ -115,9 +115,9 @@ services:
     container_name: bitcoind-testnet
     build:
       context: ../services/admin_website/app/app/bitcoind_client
-      dockerfile: ${PWD}/bitcoind/Dockerfile
+      dockerfile: ./bitcoind/Dockerfile
     volumes:
-      - ${PWD}/bitcoind-testnet-data:/home/bitcoin/.bitcoin
+      - ./bitcoind-testnet-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
       -conf=/bitcoind-testnet.conf
