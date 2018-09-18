@@ -38,10 +38,10 @@ services:
     image: lnd
     container_name: lnd-regtest
     build:
-      context: lnd/
-      dockerfile: lnd/Dockerfile
+      context: ./lnd/
+      dockerfile: ./lnd/Dockerfile
     volumes:
-      - lnd-regtest-data:/root/.lnd
+      - ./lnd-regtest-data:/root/.lnd
     environment:
       - RPCHOST=bitcoind-regtest
       - RPCUSER=user
@@ -146,10 +146,10 @@ services:
     image: lnd
     container_name: lnd-testnet
     build:
-      context: lnd/
-      dockerfile: lnd/Dockerfile
+      context: ./lnd/
+      dockerfile: ./lnd/Dockerfile
     volumes:
-      - lnd-testnet-data:/root/.lnd
+      - ./lnd-testnet-data:/root/.lnd
     environment:
       - RPCHOST=bitcoind-testnet
       - RPCUSER=user
