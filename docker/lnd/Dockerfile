@@ -10,12 +10,20 @@ RUN go get -u github.com/golang/dep/cmd/dep
 RUN go get -d github.com/lightningnetwork/lnd
 RUN  cd /go/src/github.com/lightningnetwork/lnd &&  make &&  make install
 
+WORKDIR $GOPATH/src/github.com/LN-Zap/zapconnect
+RUN git clone https://github.com/LN-Zap/zapconnect . \
+  && git reset --hard 7c3c72adb6fbfcf343570839124013bbc4649f08 \
+  && make \
+  && make install \
+  && cp /go/bin/zapconnect /bin/
+
 # Start a new, final image to reduce size.
 FROM alpine as final
 
 # Copy the binaries and entrypoint from the builder image.
 COPY --from=builder /go/bin/lncli /bin/
 COPY --from=builder /go/bin/lnd /bin/
+COPY --from=builder /go/bin/zapconnect /bin/
 
 # Add bash.
 RUN apk add --no-cache \

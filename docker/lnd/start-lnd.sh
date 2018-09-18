@@ -71,6 +71,6 @@ exec lnd \
     "--$BACKEND.rpchost"="$RPCHOST" \
     "--$BACKEND.rpcuser"="$RPCUSER" \
     "--$BACKEND.rpcpass"="$RPCPASS" \
-    "--$BACKEND.rpcauth"="$RPCAUTH" \
+    #"--$BACKEND.rpcauth"="$RPCAUTH" \
     --debuglevel="$DEBUG" \
     "$@"
