@@ -115,9 +115,9 @@ services:
     container_name: bitcoind-testnet
     build:
       context: ../services/admin_website/app/app/bitcoind_client
-      dockerfile: ./bitcoind/Dockerfile
+      dockerfile: ${PWD}/bitcoind/Dockerfile
     volumes:
-      - ./bitcoind-testnet-data:/home/bitcoin/.bitcoin
+      - ${PWD}/bitcoind-testnet-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
       -conf=/bitcoind-testnet.conf
@@ -125,7 +125,7 @@ services:
       -testnet
       -rpcallowip=0.0.0.0/0
       -debug=0
-      -zmqpubrawblock=tcp://*:28333
+      -zmqpubrawblock=tcp://*:28334
       -zmqpubrawtx=tcp://*:28333
       -zmqpubhashtx=tcp://*:28333
       -zmqpubhashblock=tcp://*:28333
@@ -146,10 +146,10 @@ services:
     image: lnd
     container_name: lnd-testnet
     build:
-      context: ./lnd/
-      dockerfile: ./lnd/Dockerfile
+      context: ${PWD}/lnd/
+      dockerfile: ${PWD}/lnd/Dockerfile
     volumes:
-      - ./lnd-testnet-data:/root/.lnd
+      - ${PWD}/lnd-testnet-data:/root/.lnd
     environment:
       - RPCHOST=bitcoind-testnet
       - RPCUSER=user
@@ -160,7 +160,7 @@ services:
       - DEBUG=debug
       - BITCOIN_NODE=bitcoind
       - ZMQ_PUB_RAW_BLOCK=tcp://bitcoind-testnet:28333
-      - ZMQ_PUB_RAW_TX=tcp://bitcoind-testnet:28333
+      - ZMQ_PUB_RAW_TX=tcp://bitcoind-testnet:28334
       - RPC_LISTEN=:10012
       - REST_LISTEN=:8081
       - LISTEN=:9736

@@ -38,6 +38,7 @@ set_default() {
    return "$VARIABLE"
 }
 
+
 # Set default variables if needed.
 RPCHOST=$(set_default "$RPCHOST" "127.0.0.1")
 ZMQ_PUB_RAW_BLOCK=$(set_default "$ZMQ_PUB_RAW_BLOCK" "tcp://127.0.0.1:28333")
@@ -54,23 +55,16 @@ BACKEND="bitcoind"
 RPC_LISTEN=$(set_default "$RPC_LISTEN" ":10009")
 REST_LISTEN=$(set_default "$REST_LISTEN" ":8080")
 LISTEN=$(set_default "$LISTEN" ":9735")
+LNDCONFLOC=$(set_default "$LNDCONFLOC" "/root/.lnd/lnd.conf")
+#Where the file will be copied to by the DockerFile
+LNDCONFCOPYLOC=$(set_default "$LNDCONFCOPYLOC" "/lnd.conf")
 
 
+if [ -e $LNDCONFCOPYLOC ]; then
+        mv $LNDCONFCOPYLOC $LNDCONFLOC
+fi
+
+echo "running lnd"
 exec lnd \
-    --rpclisten="$RPC_LISTEN" \
-    --restlisten="$REST_LISTEN" \
-    --listen="$LISTEN" \
-    --tlsextradomain="lnd" \
-    --noencryptwallet \
-    --logdir="/data" \
-    "--$CHAIN.active" \
-    "--$CHAIN.$NETWORK" \
-    "--$CHAIN.node"="$BITCOIN_NODE" \
-    "--$BACKEND.zmqpubrawblock"="$ZMQ_PUB_RAW_BLOCK" \
-    "--$BACKEND.zmqpubrawtx"="$ZMQ_PUB_RAW_TX" \
-    "--$BACKEND.rpchost"="$RPCHOST" \
-    "--$BACKEND.rpcuser"="$RPCUSER" \
-    "--$BACKEND.rpcpass"="$RPCPASS" \
-    #"--$BACKEND.rpcauth"="$RPCAUTH" \
-    --debuglevel="$DEBUG" \
+    --configfile=/root/.lnd/lnd.conf
     "$@"
