@@ -66,7 +66,7 @@ exec lnd \
     "--$CHAIN.$NETWORK" \
     "--$CHAIN.node"="$BITCOIN_NODE" \
     "--$BACKEND.zmqpubrawblock"="$ZMQ_PUBRAWBLOCK" \
-    "--$BACKEND.zmqpubrawtw"="$ZMQ_PUBRAWTX" \
+    "--$BACKEND.zmqpubrawtx"="$ZMQ_PUBRAWTX" \
     "--$BACKEND.rpchost"="$RPCHOST" \
     "--$BACKEND.rpcuser"="$RPCUSER" \
     "--$BACKEND.rpcpass"="$RPCPASS" \
