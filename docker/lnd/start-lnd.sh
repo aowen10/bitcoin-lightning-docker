@@ -40,7 +40,8 @@ set_default() {
 
 # Set default variables if needed.
 RPCHOST=$(set_default "$RPCHOST" "127.0.0.1")
-ZMQ_PATH=$(set_default "$ZMQ_PATH" "tcp://127.0.0.1:28332")
+ZMQ_PUBRAWBLOCK=$(set_default "$ZMQ_PUBRAWBLOCK" "tcp://127.0.0.1:28332")
+ZMQ_PUBRAWTX=$(set_default "$ZMQ_PUBRAWTX" "tcp://127.0.0.1:28333")
 RPCUSER=$(set_default "$RPCUSER" "devuser")
 RPCPASS=$(set_default "$RPCPASS" "devpass")
 DEBUG=$(set_default "$DEBUG" "debug")
@@ -59,12 +60,13 @@ exec lnd \
     --restlisten="$REST_LISTEN" \
     --listen="$LISTEN" \
     --tlsextradomain="lnd-$NETWORK" \
-    --noencryptwallet \
+    --noseedbackup \
     --logdir="/data" \
     "--$CHAIN.active" \
     "--$CHAIN.$NETWORK" \
     "--$CHAIN.node"="$BITCOIN_NODE" \
-    "--$BACKEND.zmqpath"="$ZMQ_PATH" \
+    "--$BACKEND.zmqpubrawblock"="$ZMQ_PUBRAWBLOCK" \
+    "--$BACKEND.zmqpubrawtx"="$ZMQ_PUBRAWTX" \
     "--$BACKEND.rpchost"="$RPCHOST" \
     "--$BACKEND.rpcuser"="$RPCUSER" \
     "--$BACKEND.rpcpass"="$RPCPASS" \
