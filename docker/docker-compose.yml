@@ -162,17 +162,17 @@ services:
       - ZMQ_PUB_RAW_BLOCK=tcp://bitcoind-testnet:28333
       - ZMQ_PUB_RAW_TX=tcp://bitcoind-testnet:28334
       - RPC_LISTEN=:10012
-      - REST_LISTEN=:90001
+      - REST_LISTEN=:9001
       - LISTEN=:9736
     entrypoint: ["./start-lnd.sh"]
     restart: always
     expose:
      - "10012" # testnet gRPC
-     - "90001"  # testnet REST
+     - "9001"  # testnet REST
      - "9736"  # testnet p2p
     ports:
      - "10012:10012" # testnet gRPC
-     - "90001:90001"   # testnet REST
+     - "9001:9001"   # testnet REST
      - "9736:9736"   # testnet p2p
 
   logging-service-testnet:
