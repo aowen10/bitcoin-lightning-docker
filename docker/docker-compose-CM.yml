@@ -117,7 +117,7 @@ services:
       context: ../services/admin_website/app/app/bitcoind_client
       dockerfile: /home/satoshi/bitcoin-lightning-docker/docker/bitcoind/Dockerfile
     volumes:
-      - /mnt/storage/Docker_Volumes/Lightning/bitcoind-testnet-data:/home/bitcoin/.bitcoin
+      - /mnt/hdd/Docker_Volumes/Lightning/bitcoind-testnet-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
       -conf=/bitcoind-testnet.conf
@@ -149,7 +149,7 @@ services:
       context: /home/satoshi/bitcoin-lightning-docker/docker/lnd/
       dockerfile: /home/satoshi/bitcoin-lightning-docker/docker/lnd/Dockerfile
     volumes:
-      - /mnt/storage/Docker_Volumes/Lightning//lnd-testnet-data:/root/.lnd
+      - /mnt/hdd/Docker_Volumes/Lightning//lnd-testnet-data:/root/.lnd
     environment:
       - RPCHOST=bitcoind-testnet
       - RPCUSER=user
@@ -185,8 +185,8 @@ services:
       - WEBSOCKET_HOST=logging-service-testnet
       - WEBSOCKET_PORT=8764
     volumes:
-      - /mnt/storage/Docker_Volumes/Lightning/bitcoind-testnet-data:/home/bitcoin/.bitcoin:ro
-      - /mnt/storage/Docker_Volumes/Lightning/lnd-testnet-data:/root/.lnd:ro
+      - /mnt/hdd/Docker_Volumes/Lightning/bitcoind-testnet-data:/home/bitcoin/.bitcoin:ro
+      - /mnt/hdd/Docker_Volumes/Lightning/lnd-testnet-data:/root/.lnd:ro
     ports:
      - "8764:8764"
 
