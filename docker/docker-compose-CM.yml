@@ -175,20 +175,20 @@ services:
      - "9000:9000"   # testnet REST
      - "9736:9736"   # testnet p2p
 
-  logging-service-testnet:
-    image: logging-service
-    container_name: logging-service-testnet
-    build:
-      context: ../services/logging # The app directory's parent
-      dockerfile: /home/satoshi/bitcoin-lightning-docker/docker//services/logging/Dockerfile
-    environment:
-      - WEBSOCKET_HOST=logging-service-testnet
-      - WEBSOCKET_PORT=8764
-    volumes:
-      - /mnt/hdd/Docker_Volumes/Lightning/bitcoind-testnet-data:/home/bitcoin/.bitcoin:ro
-      - /mnt/hdd/Docker_Volumes/Lightning/lnd-testnet-data:/root/.lnd:ro
-    ports:
-     - "8764:8764"
+  # logging-service-testnet:
+  #   image: logging-service
+  #   container_name: logging-service-testnet
+  #   build:
+  #     context: ../services/logging # The app directory's parent
+  #     dockerfile: /home/satoshi/bitcoin-lightning-docker/docker//services/logging/Dockerfile
+  #   environment:
+  #     - WEBSOCKET_HOST=logging-service-testnet
+  #     - WEBSOCKET_PORT=8764
+  #   volumes:
+  #     - /mnt/hdd/Docker_Volumes/Lightning/bitcoind-testnet-data:/home/bitcoin/.bitcoin:ro
+  #     - /mnt/hdd/Docker_Volumes/Lightning/lnd-testnet-data:/root/.lnd:ro
+  #   ports:
+  #    - "8764:8764"
 
   # admin-website-testnet:
   #   image: admin_website
