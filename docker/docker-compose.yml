@@ -115,9 +115,9 @@ services:
     container_name: bitcoind-testnet
     build:
       context: ../services/admin_website/app/app/bitcoind_client
-      dockerfile: ${PWD}/bitcoind/Dockerfile
+      dockerfile: /home/satoshi/bitcoin-lightning-docker/docker/bitcoind/Dockerfile
     volumes:
-      - ${PWD}/bitcoind-testnet-data:/home/bitcoin/.bitcoin
+      - /mnt/hdd/Docker_Volumes/Lightning/bitcoind-testnet-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
       -conf=/bitcoind-testnet.conf
@@ -131,7 +131,7 @@ services:
       -zmqpubhashblock=tcp://*:28333
       -txindex=1
       -rpcuser=user
-      -rpcpass=yPFfmRweQDFSAyqvgP4LuTO0LYKB7eBVBrLAHo4Nxwo=
+      -rpcpassword=yPFfmRweQDFSAyqvgP4LuTO0LYKB7eBVBrLAHo4Nxwo=
     expose:
      - "18332"  # testnet RPC
      - "18333"  # testnet p2p
@@ -146,10 +146,11 @@ services:
     image: lnd
     container_name: lnd-testnet
     build:
-      context: ${PWD}/lnd/
-      dockerfile: ${PWD}/lnd/Dockerfile
+      context: /home/satoshi/bitcoin-lightning-docker/docker/lnd/
+      dockerfile: /home/satoshi/bitcoin-lightning-docker/docker/lnd/Dockerfile
     volumes:
-      - ${PWD}/lnd-testnet-data:/root/.lnd
+      - /mnt/hdd/Docker_Volumes/Lightning//lnd-testnet-data:/root/.lnd
+    tty: true
     environment:
       - RPCHOST=bitcoind-testnet
       - RPCUSER=user
@@ -162,33 +163,33 @@ services:
       - ZMQ_PUB_RAW_BLOCK=tcp://bitcoind-testnet:28333
       - ZMQ_PUB_RAW_TX=tcp://bitcoind-testnet:28334
       - RPC_LISTEN=:10012
-      - REST_LISTEN=:9001
+      - REST_LISTEN=:9000
       - LISTEN=:9736
     entrypoint: ["./start-lnd.sh"]
     restart: always
     expose:
      - "10012" # testnet gRPC
-     - "9001"  # testnet REST
+     - "9000"  # testnet REST
      - "9736"  # testnet p2p
     ports:
      - "10012:10012" # testnet gRPC
-     - "9001:9001"   # testnet REST
+     - "9000:9000"   # testnet REST
      - "9736:9736"   # testnet p2p
 
-  logging-service-testnet:
-    image: logging-service
-    container_name: logging-service-testnet
-    build:
-      context: ../services/logging # The app directory's parent
-      dockerfile: ${PWD}/services/logging/Dockerfile
-    environment:
-      - WEBSOCKET_HOST=logging-service-testnet
-      - WEBSOCKET_PORT=8764
-    volumes:
-      - ${PWD}/bitcoind-testnet-data:/home/bitcoin/.bitcoin:ro
-      - ${PWD}/lnd-testnet-data:/root/.lnd:ro
-    ports:
-     - "8764:8764"
+  # logging-service-testnet:
+  #   image: logging-service
+  #   container_name: logging-service-testnet
+  #   build:
+  #     context: ../services/logging # The app directory's parent
+  #     dockerfile: /home/satoshi/bitcoin-lightning-docker/docker//services/logging/Dockerfile
+  #   environment:
+  #     - WEBSOCKET_HOST=logging-service-testnet
+  #     - WEBSOCKET_PORT=8764
+  #   volumes:
+  #     - /mnt/hdd/Docker_Volumes/Lightning/bitcoind-testnet-data:/home/bitcoin/.bitcoin:ro
+  #     - /mnt/hdd/Docker_Volumes/Lightning/lnd-testnet-data:/root/.lnd:ro
+  #   ports:
+  #    - "8764:8764"
 
   # admin-website-testnet:
   #   image: admin_website
