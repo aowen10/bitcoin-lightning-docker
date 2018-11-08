@@ -150,6 +150,7 @@ services:
       dockerfile: /home/satoshi/bitcoin-lightning-docker/docker/lnd/Dockerfile
     volumes:
       - /mnt/hdd/Docker_Volumes/Lightning//lnd-testnet-data:/root/.lnd
+    tty: true
     environment:
       - RPCHOST=bitcoind-testnet
       - RPCUSER=user
