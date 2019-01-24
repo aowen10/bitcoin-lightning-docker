@@ -131,7 +131,7 @@ services:
       -zmqpubhashblock=tcp://*:28333
       -txindex=1
       -rpcuser=user
-      -rpcpass=yPFfmRweQDFSAyqvgP4LuTO0LYKB7eBVBrLAHo4Nxwo=
+      -rpcpassword=yPFfmRweQDFSAyqvgP4LuTO0LYKB7eBVBrLAHo4Nxwo=
     expose:
      - "18332"  # testnet RPC
      - "18333"  # testnet p2p
