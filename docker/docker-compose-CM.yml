@@ -125,10 +125,8 @@ services:
       -testnet
       -rpcallowip=0.0.0.0/0
       -debug=0
-      -zmqpubrawblock=tcp://*:28334
+      -zmqpubrawblock=tcp://*:28332
       -zmqpubrawtx=tcp://*:28333
-      -zmqpubhashtx=tcp://*:28333
-      -zmqpubhashblock=tcp://*:28333
       -txindex=1
       -rpcuser=user
       -rpcpassword=yPFfmRweQDFSAyqvgP4LuTO0LYKB7eBVBrLAHo4Nxwo=
@@ -160,8 +158,8 @@ services:
       - CHAIN=bitcoin
       - DEBUG=debug
       - BITCOIN_NODE=bitcoind
-      - ZMQ_PUB_RAW_BLOCK=tcp://bitcoind-testnet:28333
-      - ZMQ_PUB_RAW_TX=tcp://bitcoind-testnet:28334
+      - ZMQ_PUB_RAW_BLOCK=tcp://bitcoind-testnet:28332
+      - ZMQ_PUB_RAW_TX=tcp://bitcoind-testnet:28333
       - RPC_LISTEN=:10012
       - REST_LISTEN=:9000
       - LISTEN=:9736

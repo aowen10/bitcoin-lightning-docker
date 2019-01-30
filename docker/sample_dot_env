@@ -14,4 +14,5 @@ NETWORK=testnet
 CHAIN=bitcoin
 DEBUGLEVEL=debug
 BITCOIN_NODE=bitcoind
-ZMQ_PATH=tcp://bitcoind:28332
+ZMQ_PUBRAWBLOCK=tcp://bitcoind:28332
+ZMQ_PUBRAWTX=tcp://bitcoind:28333
