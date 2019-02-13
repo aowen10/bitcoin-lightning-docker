@@ -1,0 +1,105 @@
+version: '3.3'
+services:
+
+######################
+# Regtest Containers #
+######################
+
+  bitcoind-regtest:
+    image: bitcoind
+    container_name: bitcoind-regtest
+    build:
+      context: ../services/admin_website/app/app/bitcoind_client
+      dockerfile: ${PWD}/bitcoind/Dockerfile
+    volumes:
+      - ${PWD}/bitcoind-regtest-data:/home/bitcoin/.bitcoin
+    command:
+      bitcoind
+      -conf=/bitcoind-regtest.conf
+      -server
+      -regtest
+      -rpcallowip=0.0.0.0/0
+      -debug=0
+      -zmqpubrawblock=tcp://*:28334
+      -zmqpubrawtx=tcp://*:28335
+      -txindex=1
+    expose:
+     - "18443" # regtest RPC
+     - "18444" # regtest p2p
+     - "28334" # regtest ZMQ
+    ports:
+     - "18443:18443" # regtest RPC
+     - "18444:18444" # regtest p2p
+     - "28334:28334" # regtest ZMQ
+
+  lnd-regtest:
+    image: lnd
+    container_name: lnd-regtest
+    build:
+      context: ${PWD}/lnd/
+      dockerfile: ${PWD}/lnd/Dockerfile
+    volumes:
+      - ${PWD}/lnd-regtest-data:/root/.lnd
+    environment:
+      - RPCHOST=bitcoind-regtest
+      - RPCUSER=user
+      - RPCPASS=yPFfmRweQDFSAyqvgP4LuTO0LYKB7eBVBrLAHo4Nxwo=
+      - NETWORK=regtest
+      - CHAIN=bitcoin
+      - DEBUG=debug
+      - BITCOIN_NODE=bitcoind
+      - ZMQ_PUBRAWBLOCK=tcp://bitcoind-regtest:28334
+      - ZMQ_PUBRAWTX=tcp://bitcoind-regtest:28335
+      - RPC_LISTEN=:10011
+      - REST_LISTEN=:8082
+      - LISTEN=:9737
+    entrypoint: ["./start-lnd.sh"]
+    restart: always
+    expose:
+     - "10011" # testnet gRPC
+     - "8082"  # testnet REST
+     - "9737"  # testnet p2p
+    ports:
+     - "10011:10011" # regtest gRPC
+     - "8082:8082"   # regtest REST
+     - "9737:9737"   # regtest p2p
+
+  # logging-service-regtest:
+  #   image: logging-service
+  #   container_name: logging-service-regtest
+  #   build:
+  #     context: ../services/logging # The app directory's parent
+  #     dockerfile: ${PWD}/services/logging/Dockerfile
+  #   environment:
+  #     - WEBSOCKET_HOST=logging-service-regtest
+  #     - WEBSOCKET_PORT=8765
+  #   volumes:
+  #     - ${PWD}/bitcoind-regtest-data:/home/bitcoin/.bitcoin:ro
+  #     - ${PWD}/lnd-regtest-data:/root/.lnd:ro
+  #   ports:
+  #    - "8765:8765"
+
+  # admin-website-regtest:
+  #   image: admin_website
+  #   container_name: admin-website-regtest
+  #   build:
+  #     context: ../services/admin_website # The app directory's parent
+  #     dockerfile: ${PWD}/services/admin_website/Dockerfile
+  #   environment:
+  #     - WEBSOCKET_HOST=logging-service-regtest
+  #     - WEBSOCKET_PORT=8765
+  #     - BITCOIND_RPC_HOST=bitcoind-regtest
+  #     - NETWORK=regtest
+  #     - LND_RPC_URI=lnd-regtest:10011
+  #     - LND_PEER_URI=lnd-regtest:9737
+  #     - LND_AUTH_DATA_PATH=default
+  #     - FLASK_APP=app/main.py
+  #     - FLASK_DEBUG=1
+  #     - 'RUN=flask run --host=0.0.0.0 --port=80'
+  #   command: flask run --host=0.0.0.0 --port=80
+  #   volumes:
+  #     - ${PWD}/bitcoind-regtest-data:/root/.bitcoin
+  #     - ${PWD}/lnd-regtest-data:/root/.lnd
+  #     - ${PWD}/../services/admin_website/app/app:/app/app
+  #   ports:
+  #    - "5003:80" # expose regtest admin website to localhost:5003
