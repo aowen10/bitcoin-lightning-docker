@@ -1,0 +1,74 @@
+version: '3.3'
+services:
+
+######################
+# Mainnet Containers #
+######################
+
+  bitcoind-mainnet:
+    image: bitcoind
+    container_name: bitcoind-mainnet
+    build:
+      context: ../services/admin_website/app/app/bitcoind_client
+      dockerfile: ${PWD}/bitcoind/Dockerfile
+    volumes:
+      - ${PWD}/bitcoind-mainnet-data:/home/bitcoin/.bitcoin
+    command:
+      bitcoind
+      -conf=/bitcoind-mainnet.conf
+      -dbcache=4000
+      -server
+      -rpcallowip=0.0.0.0/0
+      -debug=0
+      -zmqpubrawblock=tcp://*:8334
+      -zmqpubrawtx=tcp://*:8335
+      -txindex=1
+      -rpcuser=user
+      -rpcpassword=yPFfmRweQDFSAyqvgP4LuTO0LYKB7eBVBrLAHo4Nxwo=
+      #Unknown if these are necessary
+      #-zmqpubhashtx=tcp://*:8335
+      #-zmqpubhashblock=tcp://*:8335
+    expose:
+     - "8332"  # mainnet RPC
+     - "8333"  # mainnet p2p
+     - "8334"  # mainnet ZMQ raw block
+     - "8335"  # mainnet ZMQ rawtx
+     # The RPC and p2p ports are exposed in the parent image
+    ports:
+     - "8332:8332" # mainnet RPC
+     - "8333:8333" # mainnet p2p
+     - "8334:8334" # mainnet ZMQ raw block
+     - "8335:8335" # mainnet ZMQ raw tx
+
+  lnd-mainnet:
+    image: lnd
+    container_name: lnd-mainnet
+    build:
+      context: ${PWD}/lnd/
+      dockerfile: ${PWD}/lnd/Dockerfile
+    volumes:
+      - ${PWD}/lnd-mainnet-data:/root/.lnd
+    environment:
+      - RPCHOST=bitcoind-mainnet
+      - RPCUSER=user
+      - RPCPASS=yPFfmRweQDFSAyqvgP4LuTO0LYKB7eBVBrLAHo4Nxwo=
+ #     - RPCAUTH=user:d4a9dfedc252bb9a40b62a541822f26$45ac142a1c62a5856671531684f95a525556156793f1a696d25ed64a4609233b
+      - NETWORK=testnet
+      - CHAIN=bitcoin
+      - DEBUG=debug
+      - BITCOIN_NODE=bitcoind
+      - ZMQ_PUB_RAW_BLOCK=tcp://bitcoind-mainnet:8334
+      - ZMQ_PUB_RAW_TX=tcp://bitcoind-mainnet:8335
+      - RPC_LISTEN=:10011
+      - REST_LISTEN=:9002
+      - LISTEN=:9735
+    entrypoint: ["./start-lnd.sh"]
+    restart: always
+    expose:
+     - "10011" # mainnet gRPC
+     - "9002"  # mainnet REST
+     - "9735"  # mainnet p2p
+    ports:
+     - "10011:10011" # mainnet gRPC
+     - "9002:9002"   # mainnet REST
+     - "9736:9735"   # mainnet p2p

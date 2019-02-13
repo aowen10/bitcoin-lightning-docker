@@ -1,3 +1,5 @@
+ARG lndconf
+
 FROM golang:alpine as builder
 
 # Force Go to use the cgo based DNS resolver. This is required to ensure DNS
@@ -41,6 +43,9 @@ RUN apk add --no-cache \
 COPY "start-lnd.sh" .
 #Potentially COPY a lnd.conf file, and remove it from the start-lnd.sh?
 #RUN mkdir /root/.lnd 
-COPY "lnd.conf" .
+#COPY "lnd-mainnet.conf" .
+#COPY "lnd-testnet.conf" .
+RUN echo ${lndconf}
+#COPY $lndconf .
 RUN chmod +x start-lnd.sh
 

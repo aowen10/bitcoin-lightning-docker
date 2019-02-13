@@ -59,11 +59,13 @@ LNDCONFLOC=$(set_default "$LNDCONFLOC" "/root/.lnd/lnd.conf")
 #Where the file will be copied to by the DockerFile
 LNDCONFCOPYLOC=$(set_default "$LNDCONFCOPYLOC" "/lnd.conf")
 
+ls
+echo LNDCONF
+echo $LNDCONF
 
 if [ -e $LNDCONFCOPYLOC ]; then
         mv $LNDCONFCOPYLOC $LNDCONFLOC
 fi
-
 echo "running lnd"
 exec lnd \
     --configfile=/root/.lnd/lnd.conf

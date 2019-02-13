@@ -10,9 +10,9 @@ services:
     container_name: bitcoind-regtest
     build:
       context: ../services/admin_website/app/app/bitcoind_client
-      dockerfile: ./bitcoind/Dockerfile
+      dockerfile: ${PWD}/bitcoind/Dockerfile
     volumes:
-      - ./bitcoind-regtest-data:/home/bitcoin/.bitcoin
+      - ${PWD}/bitcoind-regtest-data:/home/bitcoin/.bitcoin
     command:
       bitcoind
       -conf=/bitcoind-regtest.conf
@@ -21,9 +21,7 @@ services:
       -rpcallowip=0.0.0.0/0
       -debug=0
       -zmqpubrawblock=tcp://*:28334
-      -zmqpubrawtx=tcp://*:28334
-      -zmqpubhashtx=tcp://*:28334
-      -zmqpubhashblock=tcp://*:28334
+      -zmqpubrawtx=tcp://*:28335
       -txindex=1
     expose:
      - "18443" # regtest RPC
@@ -38,10 +36,10 @@ services:
     image: lnd
     container_name: lnd-regtest
     build:
-      context: ./lnd/
-      dockerfile: ./lnd/Dockerfile
+      context: ${PWD}/lnd/
+      dockerfile: ${PWD}/lnd/Dockerfile
     volumes:
-      - ./lnd-regtest-data:/root/.lnd
+      - ${PWD}/lnd-regtest-data:/root/.lnd
     environment:
       - RPCHOST=bitcoind-regtest
       - RPCUSER=user
@@ -50,8 +48,8 @@ services:
       - CHAIN=bitcoin
       - DEBUG=debug
       - BITCOIN_NODE=bitcoind
-      - ZMQ_PUB_RAW_BLOCK=tcp://bitcoind-regtest:28334
-      - ZMQ_PUB_RAW_TX=tcp://bitcoind-regtest:28334
+      - ZMQ_PUBRAWBLOCK=tcp://bitcoind-regtest:28334
+      - ZMQ_PUBRAWTX=tcp://bitcoind-regtest:28335
       - RPC_LISTEN=:10011
       - REST_LISTEN=:8082
       - LISTEN=:9737
@@ -94,6 +92,7 @@ services:
   #     - NETWORK=regtest
   #     - LND_RPC_URI=lnd-regtest:10011
   #     - LND_PEER_URI=lnd-regtest:9737
+  #     - LND_AUTH_DATA_PATH=default
   #     - FLASK_APP=app/main.py
   #     - FLASK_DEBUG=1
   #     - 'RUN=flask run --host=0.0.0.0 --port=80'
