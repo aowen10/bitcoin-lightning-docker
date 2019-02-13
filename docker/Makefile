@@ -28,6 +28,12 @@ up_m:
 
 up: up_t
 
+up_d: 
+	@echo "Spinning up Docker for LND and Bitcoind for testnet"
+	docker-compose \
+		--file docker-compose.testnet.yml \
+		up -d
+
 prune:
 	docker system prune
 
